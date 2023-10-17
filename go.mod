@@ -3,6 +3,7 @@ module github.com/moqsien/gogpt
 go 1.21.3
 
 require (
+	github.com/gogf/gf/v2 v2.4.1
 	github.com/moqsien/goutils v0.5.9
 	github.com/sashabaranov/go-openai v1.16.0
 	golang.org/x/net v0.15.0
@@ -33,6 +34,8 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/sahilm/fuzzy v0.1.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
+	go.opentelemetry.io/otel v1.15.1 // indirect
+	go.opentelemetry.io/otel/trace v1.15.1 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/term v0.12.0 // indirect

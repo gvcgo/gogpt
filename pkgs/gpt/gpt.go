@@ -95,3 +95,6 @@ func (that *GPT) parseProxy() (scheme, host string, port int) {
 	}
 	return
 }
+
+func (that *GPT) SendMsg() {
+}

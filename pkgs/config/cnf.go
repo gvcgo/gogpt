@@ -1,8 +1,7 @@
 package config
 
 import (
-	"strconv"
-
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/moqsien/goutils/pkgs/gtea/input"
 	"github.com/moqsien/goutils/pkgs/gtea/selector"
 	"github.com/moqsien/goutils/pkgs/koanfer"
@@ -19,6 +18,9 @@ type OpenAIConf struct {
 	EmptyMessagesLimit uint           `koanf,json:"empty_msg_limit"`
 	Proxy              string         `koanf,json:"proxy"`
 	TimeOut            int64          `koanf,json:"timeout_seconds"`
+	MaxTokens          int            `koanf,json:"max_tokens"`
+	ContextLen         int            `koanf,json:"context_length"`
+	Temperature        float32        `koanf,json:"temperature"`
 }
 
 type Config struct {
@@ -67,14 +69,17 @@ func SetConfig(cfgPath string) {
 	cfg.OpenAI.ApiType = val.(openai.APIType)
 
 	var (
-		baseUrl    string = "baseUrl"
-		apiKey     string = "apiKey"
-		proxy      string = "proxy"
-		apiVersion string = "apiVersion"
-		orgID      string = "orgID"
-		engine     string = "engine"
-		limit      string = "limit"
-		timeout    string = "timeout"
+		baseUrl     string = "baseUrl"
+		apiKey      string = "apiKey"
+		proxy       string = "proxy"
+		apiVersion  string = "apiVersion"
+		orgID       string = "orgID"
+		engine      string = "engine"
+		limit       string = "limit"
+		timeout     string = "timeout"
+		maxTokens   string = "maxTokens"
+		ctxLen      string = "contextLength"
+		temperature string = "temperature"
 	)
 
 	mi := input.NewMultiInput()
@@ -86,8 +91,11 @@ func SetConfig(cfgPath string) {
 	mi.AddOneItem(engine, input.MWithPlaceholder("engine"), input.MWithWidth(100))
 	mi.AddOneItem(limit, input.MWithPlaceholder("empty_message_limit"), input.MWithWidth(100))
 	mi.AddOneItem(timeout, input.MWithPlaceholder("timeout"), input.MWithWidth(100))
-
+	mi.AddOneItem(maxTokens, input.MWithPlaceholder("max_tokens"), input.MWithWidth(100))
+	mi.AddOneItem(ctxLen, input.MWithPlaceholder("context_length"), input.MWithWidth(100))
+	mi.AddOneItem(temperature, input.MWithPlaceholder("temperature"), input.MWithWidth(100))
 	mi.Run()
+
 	values := mi.Values()
 	cfg.OpenAI.BaseUrl = values[baseUrl]
 	cfg.OpenAI.ApiKey = values[apiKey]
@@ -95,13 +103,15 @@ func SetConfig(cfgPath string) {
 	cfg.OpenAI.ApiVersion = values[apiVersion]
 	cfg.OpenAI.OrgID = values[orgID]
 	cfg.OpenAI.Engine = values[engine]
-	emLimit, _ := strconv.Atoi(values[limit])
-	cfg.OpenAI.EmptyMessagesLimit = uint(emLimit)
-	tt, _ := strconv.Atoi(values[timeout])
+	cfg.OpenAI.EmptyMessagesLimit = gconv.Uint(values[limit])
+	tt := gconv.Int64(values[timeout])
 	if tt <= 0 {
 		tt = 30
 	}
-	cfg.OpenAI.TimeOut = int64(tt)
+	cfg.OpenAI.TimeOut = tt
+	cfg.OpenAI.MaxTokens = gconv.Int(values[maxTokens])
+	cfg.OpenAI.ContextLen = gconv.Int(values[ctxLen])
+	cfg.OpenAI.Temperature = gconv.Float32(values[temperature])
 
 	cfg.Save()
 }
