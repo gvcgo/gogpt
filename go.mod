@@ -3,6 +3,7 @@ module github.com/moqsien/gogpt
 go 1.21.3
 
 require (
+	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/gogf/gf/v2 v2.4.1
 	github.com/moqsien/goutils v0.5.9
 	github.com/sashabaranov/go-openai v1.16.0

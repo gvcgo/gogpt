@@ -18,9 +18,11 @@ type OpenAIConf struct {
 	EmptyMessagesLimit uint           `koanf,json:"empty_msg_limit"`
 	Proxy              string         `koanf,json:"proxy"`
 	TimeOut            int64          `koanf,json:"timeout_seconds"`
+	Model              string         `koanf,json:"model"`
 	MaxTokens          int            `koanf,json:"max_tokens"`
 	ContextLen         int            `koanf,json:"context_length"`
 	Temperature        float32        `koanf,json:"temperature"`
+	SystemMsgList      []string       `koanf,json:"system_msgs"`
 }
 
 type Config struct {
@@ -30,7 +32,9 @@ type Config struct {
 }
 
 func NewConf(cfgPath string) (cfg *Config) {
-	cfg = &Config{}
+	cfg = &Config{
+		OpenAI: &OpenAIConf{SystemMsgList: []string{}},
+	}
 	cfg.path = cfgPath
 	cfg.koanfer, _ = koanfer.NewKoanfer(cfgPath)
 	if cfg.koanfer != nil {
@@ -60,6 +64,8 @@ func SetConfig(cfgPath string) {
 	selectorItems.Add(string(openai.APITypeAzureAD), openai.APITypeAzureAD)
 	sel := selector.NewSelector(
 		selectorItems,
+		selector.WithTitle("Choose APIType"),
+		selector.WithHeight(5),
 		selector.WidthEnableMulti(false),
 		selector.WithEnbleInfinite(true),
 		selector.WithFilteringEnabled(false),
@@ -67,6 +73,44 @@ func SetConfig(cfgPath string) {
 	sel.Run()
 	val := sel.Value()[0]
 	cfg.OpenAI.ApiType = val.(openai.APIType)
+
+	models := []string{
+		openai.GPT4,
+		openai.GPT432K0613,
+		openai.GPT432K0314,
+		openai.GPT432K,
+		openai.GPT40613,
+		openai.GPT40314,
+		openai.GPT3Dot5Turbo,
+		openai.GPT3Dot5Turbo0613,
+		openai.GPT3Dot5Turbo0301,
+		openai.GPT3Dot5Turbo16K,
+		openai.GPT3Dot5Turbo16K0613,
+		openai.GPT3Dot5TurboInstruct,
+		openai.GPT3Davinci,
+		openai.GPT3Davinci002,
+		openai.GPT3Curie,
+		openai.GPT3Curie002,
+		openai.GPT3Ada,
+		openai.GPT3Ada002,
+		openai.GPT3Babbage,
+		openai.GPT3Babbage002,
+	}
+	selectorItems = selector.NewItemList()
+	for _, model := range models {
+		selectorItems.Add(model, model)
+	}
+	sel = selector.NewSelector(
+		selectorItems,
+		selector.WithTitle("Choose model"),
+		selector.WithHeight(15),
+		selector.WidthEnableMulti(false),
+		selector.WithEnbleInfinite(true),
+		selector.WithFilteringEnabled(false),
+	)
+	sel.Run()
+	val = sel.Value()[0]
+	cfg.OpenAI.Model = val.(string)
 
 	var (
 		baseUrl     string = "baseUrl"
@@ -97,20 +141,42 @@ func SetConfig(cfgPath string) {
 	mi.Run()
 
 	values := mi.Values()
-	cfg.OpenAI.BaseUrl = values[baseUrl]
-	cfg.OpenAI.ApiKey = values[apiKey]
-	cfg.OpenAI.Proxy = values[proxy]
-	cfg.OpenAI.ApiVersion = values[apiVersion]
-	cfg.OpenAI.OrgID = values[orgID]
-	cfg.OpenAI.Engine = values[engine]
+	if values[baseUrl] != "" {
+		cfg.OpenAI.BaseUrl = values[baseUrl]
+	}
+	if values[apiKey] != "" {
+		cfg.OpenAI.ApiKey = values[apiKey]
+	}
+	if values[proxy] != "" {
+		cfg.OpenAI.Proxy = values[proxy]
+	}
+	if values[apiVersion] != "" {
+		cfg.OpenAI.ApiVersion = values[apiVersion]
+	}
+	if values[orgID] != "" {
+		cfg.OpenAI.OrgID = values[orgID]
+	}
+	if values[engine] != "" {
+		cfg.OpenAI.Engine = values[engine]
+	}
+
 	cfg.OpenAI.EmptyMessagesLimit = gconv.Uint(values[limit])
 	tt := gconv.Int64(values[timeout])
 	if tt <= 0 {
 		tt = 30
 	}
 	cfg.OpenAI.TimeOut = tt
-	cfg.OpenAI.MaxTokens = gconv.Int(values[maxTokens])
-	cfg.OpenAI.ContextLen = gconv.Int(values[ctxLen])
+	mTokens := gconv.Int(values[maxTokens])
+	if mTokens == 0 {
+		mTokens = 1024
+	}
+	cfg.OpenAI.MaxTokens = mTokens
+
+	cLen := gconv.Int(values[ctxLen])
+	if cLen == 0 {
+		cLen = 6
+	}
+	cfg.OpenAI.ContextLen = cLen
 	cfg.OpenAI.Temperature = gconv.Float32(values[temperature])
 
 	cfg.Save()

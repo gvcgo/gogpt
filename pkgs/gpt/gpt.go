@@ -1,6 +1,7 @@
 package gpt
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -8,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	retry "github.com/avast/retry-go"
 	"github.com/moqsien/gogpt/pkgs/config"
 	"github.com/sashabaranov/go-openai"
 	nproxy "golang.org/x/net/proxy"
@@ -19,6 +21,7 @@ const (
 
 type GPT struct {
 	OpenAIClient openai.Client
+	Stream       *openai.ChatCompletionStream
 	CNF          *config.Config
 }
 
@@ -96,5 +99,52 @@ func (that *GPT) parseProxy() (scheme, host string, port int) {
 	return
 }
 
-func (that *GPT) SendMsg() {
+func (that *GPT) SendMsg(msgs []openai.ChatCompletionMessage) (m string, err error) {
+	err = retry.Do(
+		func() error {
+			req := openai.ChatCompletionRequest{
+				Model:       that.CNF.OpenAI.Model,
+				Messages:    msgs,
+				MaxTokens:   that.CNF.OpenAI.MaxTokens,
+				Temperature: that.CNF.OpenAI.Temperature,
+				N:           1,
+			}
+			that.Stream, err = that.OpenAIClient.CreateChatCompletionStream(context.Background(), req)
+			if err != nil {
+				that.Stream = nil
+				return err
+			}
+			resp, err := that.Stream.Recv()
+			if err != nil {
+				return err
+			}
+			m = resp.Choices[0].Delta.Content
+			return nil
+		},
+		retry.Attempts(3),
+		retry.LastErrorOnly(true),
+	)
+	if err != nil {
+		return "", err
+	}
+	return
+}
+
+func (that *GPT) RecvMsg() (m string, err error) {
+	if that.Stream == nil {
+		return "", fmt.Errorf("no stream found")
+	}
+	resp, err := that.Stream.Recv()
+	if err != nil {
+		return "", err
+	}
+	m = resp.Choices[0].Delta.Content
+	return
+}
+
+func (that *GPT) Close() {
+	if that.Stream != nil {
+		that.Stream.Close()
+	}
+	that.Stream = nil
 }
