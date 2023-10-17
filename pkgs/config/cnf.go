@@ -9,10 +9,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-const (
-	OpenAIProxy string = `http://localhost:2023`
-)
-
 type OpenAIConf struct {
 	BaseUrl            string         `koanf,json:"base_url"`
 	ApiKey             string         `koanf,json:"api_key"`
@@ -22,6 +18,7 @@ type OpenAIConf struct {
 	Engine             string         `koanf,json:"engine"`
 	EmptyMessagesLimit uint           `koanf,json:"empty_msg_limit"`
 	Proxy              string         `koanf,json:"proxy"`
+	TimeOut            int64          `koanf,json:"timeout_seconds"`
 }
 
 type Config struct {
@@ -77,6 +74,7 @@ func SetConfig(cfgPath string) {
 		orgID      string = "orgID"
 		engine     string = "engine"
 		limit      string = "limit"
+		timeout    string = "timeout"
 	)
 
 	mi := input.NewMultiInput()
@@ -87,20 +85,23 @@ func SetConfig(cfgPath string) {
 	mi.AddOneItem(orgID, input.MWithPlaceholder("org_id"), input.MWithWidth(100))
 	mi.AddOneItem(engine, input.MWithPlaceholder("engine"), input.MWithWidth(100))
 	mi.AddOneItem(limit, input.MWithPlaceholder("empty_message_limit"), input.MWithWidth(100))
+	mi.AddOneItem(timeout, input.MWithPlaceholder("timeout"), input.MWithWidth(100))
 
 	mi.Run()
 	values := mi.Values()
 	cfg.OpenAI.BaseUrl = values[baseUrl]
 	cfg.OpenAI.ApiKey = values[apiKey]
 	cfg.OpenAI.Proxy = values[proxy]
-	if cfg.OpenAI.Proxy == "" {
-		cfg.OpenAI.Proxy = OpenAIProxy
-	}
 	cfg.OpenAI.ApiVersion = values[apiVersion]
 	cfg.OpenAI.OrgID = values[orgID]
 	cfg.OpenAI.Engine = values[engine]
 	emLimit, _ := strconv.Atoi(values[limit])
 	cfg.OpenAI.EmptyMessagesLimit = uint(emLimit)
+	tt, _ := strconv.Atoi(values[timeout])
+	if tt <= 0 {
+		tt = 30
+	}
+	cfg.OpenAI.TimeOut = int64(tt)
 
 	cfg.Save()
 }

@@ -5,6 +5,7 @@ go 1.21.3
 require (
 	github.com/moqsien/goutils v0.5.9
 	github.com/sashabaranov/go-openai v1.16.0
+	golang.org/x/net v0.15.0
 )
 
 require (
