@@ -28,7 +28,7 @@ type OpenAIConf struct {
 	MaxTokens          int            `koanf,json:"max_tokens"`
 	ContextLen         int            `koanf,json:"context_length"`
 	Temperature        float32        `koanf,json:"temperature"`
-	SystemMsgList      []string       `koanf,json:"system_msgs"`
+	PromptMsgUrl       string         `koanf,json:"prompt_msgs_url"`
 }
 
 type Config struct {
@@ -39,12 +39,15 @@ type Config struct {
 
 func NewConf(workDir string) (cfg *Config) {
 	cfg = &Config{
-		OpenAI: &OpenAIConf{SystemMsgList: []string{}},
+		OpenAI: &OpenAIConf{},
 	}
 	cfg.path = filepath.Join(workDir, ConfigFileName)
 	cfg.koanfer, _ = koanfer.NewKoanfer(cfg.path)
 	if cfg.koanfer != nil {
 		cfg.Reload()
+		if cfg.OpenAI.PromptMsgUrl == "" {
+			cfg.OpenAI.PromptMsgUrl = "https://gitlab.com/moqsien/gpt_resources/-/raw/main/prompt.json"
+		}
 	}
 	return
 }
