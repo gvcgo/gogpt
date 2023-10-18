@@ -6,6 +6,7 @@ require (
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/gogf/gf/v2 v2.4.1
 	github.com/moqsien/goutils v0.5.9
+	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/sashabaranov/go-openai v1.16.0
 	golang.org/x/net v0.15.0
 )
@@ -17,9 +18,11 @@ require (
 	github.com/charmbracelet/bubbletea v0.24.2 // indirect
 	github.com/charmbracelet/lipgloss v0.8.0 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
+	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gogf/gf v1.16.9 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/knadh/koanf v1.5.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
