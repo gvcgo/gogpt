@@ -1,11 +1,17 @@
 package config
 
 import (
+	"path/filepath"
+
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/moqsien/goutils/pkgs/gtea/input"
 	"github.com/moqsien/goutils/pkgs/gtea/selector"
 	"github.com/moqsien/goutils/pkgs/koanfer"
 	"github.com/sashabaranov/go-openai"
+)
+
+const (
+	ConfigFileName string = "gogpt_conf.json"
 )
 
 type OpenAIConf struct {
@@ -31,12 +37,12 @@ type Config struct {
 	koanfer *koanfer.JsonKoanfer
 }
 
-func NewConf(cfgPath string) (cfg *Config) {
+func NewConf(workDir string) (cfg *Config) {
 	cfg = &Config{
 		OpenAI: &OpenAIConf{SystemMsgList: []string{}},
 	}
-	cfg.path = cfgPath
-	cfg.koanfer, _ = koanfer.NewKoanfer(cfgPath)
+	cfg.path = filepath.Join(workDir, ConfigFileName)
+	cfg.koanfer, _ = koanfer.NewKoanfer(cfg.path)
 	if cfg.koanfer != nil {
 		cfg.Reload()
 	}
@@ -54,8 +60,8 @@ func (that *Config) Save() {
 /*
 Set configurations
 */
-func SetConfig(cfgPath string) {
-	cfg := NewConf(cfgPath)
+func SetConfig(workDir string) {
+	cfg := NewConf(workDir)
 	cfg.Reload()
 
 	selectorItems := selector.NewItemList()
