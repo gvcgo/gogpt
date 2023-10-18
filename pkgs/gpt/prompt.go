@@ -37,15 +37,19 @@ func NewGPTPrompt(cnf *config.Config) (gp *GPTPrompt) {
 
 func (that *GPTPrompt) initiate() {
 	if ok, _ := gutils.PathIsExist(that.path); !ok {
-		f := request.NewFetcher()
-		f.SetUrl(that.CNF.OpenAI.PromptMsgUrl)
-		f.Timeout = 10 * time.Second
-		f.GetAndSaveFile(that.path, true)
+		that.DownloadPrompt()
 	}
 	if ok, _ := gutils.PathIsExist(that.path); ok {
 		content, _ := os.ReadFile(that.path)
 		json.Unmarshal(content, that.PromptList)
 	}
+}
+
+func (that *GPTPrompt) DownloadPrompt() {
+	f := request.NewFetcher()
+	f.SetUrl(that.CNF.OpenAI.PromptMsgUrl)
+	f.Timeout = 10 * time.Second
+	f.GetAndSaveFile(that.path, true)
 }
 
 func (that *GPTPrompt) ChoosePrompt() {
@@ -74,4 +78,8 @@ func (that *GPTPrompt) PromptStr() string {
 		that.prompt = "You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible."
 	}
 	return that.prompt
+}
+
+func (that *GPTPrompt) SetPrompt(prompt string) {
+	that.prompt = prompt
 }

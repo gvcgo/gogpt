@@ -36,6 +36,7 @@ type OpenAIConf struct {
 type Config struct {
 	OpenAI  *OpenAIConf `koanf,json:"openai"`
 	path    string
+	workDir string
 	koanfer *koanfer.JsonKoanfer
 }
 
@@ -44,21 +45,22 @@ func NewConf(workDir string) (cfg *Config) {
 		os.MkdirAll(workDir, os.ModePerm)
 	}
 	cfg = &Config{
-		OpenAI: &OpenAIConf{},
+		OpenAI:  &OpenAIConf{},
+		workDir: workDir,
 	}
 	cfg.path = filepath.Join(workDir, ConfigFileName)
 	cfg.koanfer, _ = koanfer.NewKoanfer(cfg.path)
 	if cfg.koanfer != nil {
 		cfg.Reload()
-		if cfg.OpenAI.PromptMsgUrl == "" {
-			cfg.OpenAI.PromptMsgUrl = "https://gitlab.com/moqsien/gpt_resources/-/raw/main/prompt.json"
-		}
+	}
+	if cfg.OpenAI.PromptMsgUrl == "" {
+		cfg.OpenAI.PromptMsgUrl = "https://gitlab.com/moqsien/gpt_resources/-/raw/main/prompt.json"
 	}
 	return
 }
 
 func (that *Config) GetWorkDir() string {
-	return that.path
+	return that.workDir
 }
 
 func (that *Config) Reload() {
@@ -198,4 +200,14 @@ func SetConfig(workDir string) {
 	cfg.OpenAI.Temperature = gconv.Float32(values[temperature])
 
 	cfg.Save()
+}
+
+func GetDefaultConfig() *Config {
+	homeDir, _ := os.UserHomeDir()
+	workDir := filepath.Join(homeDir, ".gogpt")
+	confPath := filepath.Join(workDir, ConfigFileName)
+	if ok, _ := gutils.PathIsExist(confPath); !ok {
+		SetConfig(workDir)
+	}
+	return NewConf(workDir)
 }
