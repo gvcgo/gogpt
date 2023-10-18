@@ -1,11 +1,13 @@
 package config
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/moqsien/goutils/pkgs/gtea/input"
 	"github.com/moqsien/goutils/pkgs/gtea/selector"
+	"github.com/moqsien/goutils/pkgs/gutils"
 	"github.com/moqsien/goutils/pkgs/koanfer"
 	"github.com/sashabaranov/go-openai"
 )
@@ -38,6 +40,9 @@ type Config struct {
 }
 
 func NewConf(workDir string) (cfg *Config) {
+	if ok, _ := gutils.PathIsExist(workDir); !ok {
+		os.MkdirAll(workDir, os.ModePerm)
+	}
 	cfg = &Config{
 		OpenAI: &OpenAIConf{},
 	}
@@ -50,6 +55,10 @@ func NewConf(workDir string) (cfg *Config) {
 		}
 	}
 	return
+}
+
+func (that *Config) GetWorkDir() string {
+	return that.path
 }
 
 func (that *Config) Reload() {
