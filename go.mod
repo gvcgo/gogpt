@@ -6,8 +6,8 @@ require (
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.8.0
-	github.com/gogf/gf/v2 v2.4.1
-	github.com/moqsien/goutils v0.6.1
+	github.com/gogf/gf v1.16.9
+	github.com/moqsien/goutils v0.6.2
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/sashabaranov/go-openai v1.16.0
 	golang.org/x/net v0.15.0
@@ -29,7 +29,6 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
-	github.com/gogf/gf v1.16.9 // indirect
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -57,8 +56,6 @@ require (
 	github.com/sahilm/fuzzy v0.1.0 // indirect
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
-	go.opentelemetry.io/otel v1.15.1 // indirect
-	go.opentelemetry.io/otel/trace v1.15.1 // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
 	golang.org/x/crypto v0.13.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect

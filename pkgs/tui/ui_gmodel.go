@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"github.com/moqsien/gogpt/pkgs/config"
+	"github.com/moqsien/goutils/pkgs/gtea/gprint"
 	"github.com/moqsien/goutils/pkgs/gtea/selector"
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -45,4 +47,17 @@ func GetModelSelector() ExtraModel {
 		selector.WithFilteringEnabled(false),
 	)
 	return sel
+}
+
+func SetGPTModel(cfg *config.Config, values map[string]string) {
+	if cfg == nil {
+		gprint.PrintError("conf object is nil!")
+		return
+	}
+	cfg.Reload()
+	for modelStr := range values {
+		cfg.OpenAI.Model = modelStr
+		break
+	}
+	cfg.Save()
 }

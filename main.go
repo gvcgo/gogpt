@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/moqsien/gogpt/pkgs/config"
 	"github.com/moqsien/gogpt/pkgs/tui"
 )
 
@@ -49,7 +48,7 @@ func GetPrompts() {
 
 func main() {
 	// GetPrompts()
-	cnf := config.GetDefaultConfig()
+	cnf := tui.GetDefaultConfig()
 	// p := gpt.NewGPTPrompt(cnf)
 	// p.ChoosePrompt()
 	// fmt.Println(p.PromptStr())
