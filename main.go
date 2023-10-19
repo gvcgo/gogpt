@@ -2,13 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/moqsien/gogpt/pkgs/config"
-	"github.com/moqsien/gogpt/pkgs/gpt"
+	"github.com/moqsien/gogpt/pkgs/tui"
 )
 
 type ItemList struct {
@@ -50,8 +48,9 @@ func GetPrompts() {
 
 func main() {
 	// GetPrompts()
-	cnf := config.GetDefaultConfig()
-	p := gpt.NewGPTPrompt(cnf)
-	p.ChoosePrompt()
-	fmt.Println(p.PromptStr())
+	// cnf := config.GetDefaultConfig()
+	// p := gpt.NewGPTPrompt(cnf)
+	// p.ChoosePrompt()
+	// fmt.Println(p.PromptStr())
+	tui.RunTab()
 }

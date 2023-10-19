@@ -4,6 +4,8 @@ go 1.21.3
 
 require (
 	github.com/avast/retry-go v3.0.0+incompatible
+	github.com/charmbracelet/bubbletea v0.24.2
+	github.com/charmbracelet/lipgloss v0.8.0
 	github.com/gogf/gf/v2 v2.4.1
 	github.com/moqsien/goutils v0.5.9
 	github.com/pkoukk/tiktoken-go v0.1.6
@@ -20,9 +22,7 @@ require (
 	github.com/bodgit/sevenzip v1.4.2 // indirect
 	github.com/bodgit/windows v1.0.1 // indirect
 	github.com/charmbracelet/bubbles v0.16.1 // indirect
-	github.com/charmbracelet/bubbletea v0.24.2 // indirect
 	github.com/charmbracelet/harmonica v0.2.0 // indirect
-	github.com/charmbracelet/lipgloss v0.8.0 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/dsnet/compress v0.0.2-0.20210315054119-f66993602bf5 // indirect
