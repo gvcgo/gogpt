@@ -329,6 +329,8 @@ github.com/moqsien/goutils v0.5.9 h1:j+nhM5IajrYssBFmkY/9s63lId0uJUs9KUYF2RoDkXo
 github.com/moqsien/goutils v0.5.9/go.mod h1:FjA34cXS8BkoEX/eECIfA3cjA3a4YJdbz4CemZfrvmE=
 github.com/moqsien/goutils v0.6.0 h1:Mwm3UUDoknaL2v99JwwL3ID/840n1+X0VNp3X/jzNlQ=
 github.com/moqsien/goutils v0.6.0/go.mod h1:FjA34cXS8BkoEX/eECIfA3cjA3a4YJdbz4CemZfrvmE=
+github.com/moqsien/goutils v0.6.1 h1:C+jEle0OYHa2Y1EfrFUXkMDJQoupXAW4yH+1QbXEerk=
+github.com/moqsien/goutils v0.6.1/go.mod h1:FjA34cXS8BkoEX/eECIfA3cjA3a4YJdbz4CemZfrvmE=
 github.com/moqsien/xtractr v0.0.2 h1:u/1YpZxY042OMeF0YE5niFKnF3Vrouaa84jaczztZ/g=
 github.com/moqsien/xtractr v0.0.2/go.mod h1:ASDHTK1TKxtwLesJeH9wc3OnKH7v5FPZGPJlyvZleVo=
 github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b h1:1XF24mVaiu7u+CFywTdcDo2ie1pzzhwjt6RHqzpMU34=

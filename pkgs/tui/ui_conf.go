@@ -1,7 +1,6 @@
 package tui
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/moqsien/goutils/pkgs/gtea/input"
 )
 
@@ -22,15 +21,15 @@ var (
 	temperature string = "temperature"
 )
 
-func GetGoGPTConfigModel() tea.Model {
+func GetGoGPTConfigModel() ExtraModel {
 	mi := input.NewInputMultiModel()
-	mi.SetSubmitCmd(func() tea.Msg {
-		k := tea.Key{
-			Type:  tea.KeyTab,
-			Runes: []rune("tab"),
-		}
-		return tea.KeyMsg(k)
-	})
+	// mi.SetSubmitCmd(func() tea.Msg {
+	// 	k := tea.Key{
+	// 		Type:  tea.KeyTab,
+	// 		Runes: []rune("tab"),
+	// 	}
+	// 	return tea.KeyMsg(k)
+	// })
 
 	mi.AddOneInput(baseUrl, input.MWithPlaceholder("base_url"), input.MWithWidth(150))
 	mi.AddOneInput(apiKey, input.MWithPlaceholder("api_key"), input.MWithWidth(100))
@@ -43,6 +42,5 @@ func GetGoGPTConfigModel() tea.Model {
 	mi.AddOneInput(maxTokens, input.MWithPlaceholder("max_tokens"), input.MWithWidth(100))
 	mi.AddOneInput(ctxLen, input.MWithPlaceholder("context_length"), input.MWithWidth(100))
 	mi.AddOneInput(temperature, input.MWithPlaceholder("temperature"), input.MWithWidth(100))
-
 	return mi
 }

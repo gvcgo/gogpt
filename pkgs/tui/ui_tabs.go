@@ -16,6 +16,11 @@ type Tab struct {
 }
 
 /*
+Customed messgaes
+*/
+type ReturnFirst string
+
+/*
 GPT UI Model
 */
 type GPTViewModel struct {
@@ -68,8 +73,12 @@ func (that *GPTViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		default:
 			currentModel := that.GetCurrentModel()
-			return currentModel.Update(msg)
+			_, cmd := currentModel.Update(msg)
+			return that, cmd
 		}
+	case ReturnFirst:
+		that.ActiveTab = 0
+		return that, nil
 	}
 	return that, nil
 }
@@ -88,8 +97,8 @@ func (that *GPTViewModel) View() string {
 	}
 	row := strings.Join(newTabs, " | ")
 	doc.WriteString(row)
-	doc.WriteString("\n")
 
+	doc.WriteString("\n\n")
 	currentModel := that.GetCurrentModel()
 	doc.WriteString(currentModel.View())
 	return doc.String()

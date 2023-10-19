@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.8.0
 	github.com/gogf/gf/v2 v2.4.1
-	github.com/moqsien/goutils v0.6.0
+	github.com/moqsien/goutils v0.6.1
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/sashabaranov/go-openai v1.16.0
 	golang.org/x/net v0.15.0
