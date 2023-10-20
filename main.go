@@ -48,10 +48,12 @@ func GetPrompts() {
 
 func main() {
 	// GetPrompts()
+
 	cnf := tui.GetDefaultConfig()
+	gpt := tui.NewGPTUI(cnf)
+	gpt.Run()
+
 	// p := gpt.NewGPTPrompt(cnf)
 	// p.ChoosePrompt()
 	// fmt.Println(p.PromptStr())
-	gpt := tui.NewGPTUI(cnf)
-	gpt.Run()
 }
