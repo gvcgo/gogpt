@@ -48,7 +48,7 @@ func (that *GPTPrompt) DownloadPrompt() {
 	f := request.NewFetcher()
 	f.SetUrl(that.CNF.OpenAI.PromptMsgUrl)
 	f.Timeout = 10 * time.Second
-	f.GetAndSaveFile(that.path, true)
+	f.GetFile(that.path, true)
 }
 
 func (that *GPTPrompt) PromptStr() string {

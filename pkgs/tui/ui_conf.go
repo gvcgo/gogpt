@@ -59,7 +59,7 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		openai.GPT3Babbage,
 		openai.GPT3Babbage002,
 	}
-	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("gpt_model, default: https://api.openai.com/v1"), input.MWithWidth(100))
+	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("gpt_model"), input.MWithWidth(100))
 	gptPromptList := []string{}
 	for _, item := range *prompt.PromptList {
 		gptPromptList = append(gptPromptList, item.Title)
