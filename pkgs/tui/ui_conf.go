@@ -38,14 +38,14 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 	mi := input.NewInputMultiModel()
 	mi.AddOneInput(baseUrl, input.MWithPlaceholder("base_url"), input.MWithWidth(150))
 	gptModelList := []string{
-		openai.GPT4,
+		openai.GPT3Dot5Turbo0613,
+		openai.GPT3Dot5Turbo,
 		openai.GPT432K0613,
+		openai.GPT4,
 		openai.GPT432K0314,
 		openai.GPT432K,
 		openai.GPT40613,
 		openai.GPT40314,
-		openai.GPT3Dot5Turbo,
-		openai.GPT3Dot5Turbo0613,
 		openai.GPT3Dot5Turbo0301,
 		openai.GPT3Dot5Turbo16K,
 		openai.GPT3Dot5Turbo16K0613,
@@ -59,7 +59,7 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		openai.GPT3Babbage,
 		openai.GPT3Babbage002,
 	}
-	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("gpt_model"), input.MWithWidth(100))
+	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("gpt_model, default: https://api.openai.com/v1"), input.MWithWidth(100))
 	gptPromptList := []string{}
 	for _, item := range *prompt.PromptList {
 		gptPromptList = append(gptPromptList, item.Title)
