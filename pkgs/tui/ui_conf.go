@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gogf/gf/util/gconv"
 	"github.com/moqsien/gogpt/pkgs/config"
+	"github.com/moqsien/gogpt/pkgs/gpt"
 	"github.com/moqsien/goutils/pkgs/gtea/gprint"
 	"github.com/moqsien/goutils/pkgs/gtea/input"
 	"github.com/moqsien/goutils/pkgs/gutils"
@@ -17,22 +18,55 @@ import (
 Gogpt Config Model
 */
 var (
-	baseUrl     string = "baseUrl"
-	apiKey      string = "apiKey"
-	proxy       string = "proxy"
-	apiVersion  string = "apiVersion"
-	orgID       string = "orgID"
-	engine      string = "engine"
-	limit       string = "limit"
-	timeout     string = "timeout"
-	maxTokens   string = "maxTokens"
-	ctxLen      string = "contextLength"
-	temperature string = "temperature"
+	baseUrl        string = "baseUrl"
+	gptModel       string = "select_model"
+	apiKey         string = "apiKey"
+	proxy          string = "proxy"
+	apiVersion     string = "apiVersion"
+	orgID          string = "orgID"
+	engine         string = "engine"
+	limit          string = "empty_limit"
+	timeout        string = "timeout"
+	maxTokens      string = "maxTokens"
+	ctxLen         string = "contextLength"
+	temperature    string = "temperature"
+	gptPrompt      string = "select_prompt"
+	gptPromptValue string = "enter_prompt"
 )
 
-func GetGoGPTConfigModel() ExtraModel {
+func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 	mi := input.NewInputMultiModel()
 	mi.AddOneInput(baseUrl, input.MWithPlaceholder("base_url"), input.MWithWidth(150))
+	gptModelList := []string{
+		openai.GPT4,
+		openai.GPT432K0613,
+		openai.GPT432K0314,
+		openai.GPT432K,
+		openai.GPT40613,
+		openai.GPT40314,
+		openai.GPT3Dot5Turbo,
+		openai.GPT3Dot5Turbo0613,
+		openai.GPT3Dot5Turbo0301,
+		openai.GPT3Dot5Turbo16K,
+		openai.GPT3Dot5Turbo16K0613,
+		openai.GPT3Dot5TurboInstruct,
+		openai.GPT3Davinci,
+		openai.GPT3Davinci002,
+		openai.GPT3Curie,
+		openai.GPT3Curie002,
+		openai.GPT3Ada,
+		openai.GPT3Ada002,
+		openai.GPT3Babbage,
+		openai.GPT3Babbage002,
+	}
+	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("gpt_model"), input.MWithWidth(100))
+	gptPromptList := []string{}
+	for _, item := range *prompt.PromptList {
+		gptPromptList = append(gptPromptList, item.Title)
+	}
+	mi.AddOneOption(gptPrompt, gptPromptList, input.MWithPlaceholder("gpt_prompt"), input.MWithWidth(100))
+	mi.AddOneInput(gptPromptValue, input.MWithPlaceholder("enter_gpt_prompt"), input.MWithWidth(100))
+
 	mi.AddOneInput(apiKey, input.MWithPlaceholder("api_key"), input.MWithWidth(100))
 	mi.AddOneInput(proxy, input.MWithPlaceholder("proxy"), input.MWithWidth(150))
 	mi.AddOneInput(apiVersion, input.MWithPlaceholder("api_version"), input.MWithWidth(100))
@@ -71,6 +105,12 @@ func SetConfig(cfg *config.Config, values map[string]string) {
 		if values[engine] != "" {
 			cfg.OpenAI.Engine = values[engine]
 		}
+		if values[gptPrompt] != "" {
+			cfg.OpenAI.PromptStr = values[gptPrompt]
+		}
+		if values[gptPromptValue] != "" {
+			cfg.OpenAI.PromptStr = values[gptPromptValue]
+		}
 
 		cfg.OpenAI.EmptyMessagesLimit = gconv.Uint(values[limit])
 		tt := gconv.Int64(values[timeout])
@@ -91,7 +131,7 @@ func SetConfig(cfg *config.Config, values map[string]string) {
 		cfg.OpenAI.ContextLen = cLen
 		cfg.OpenAI.Temperature = gconv.Float32(values[temperature])
 	}
-	cfg.OpenAI.PromptMsgUrl = "https://gitlab.com/moqsien/gpt_resources/-/raw/main/prompt.json"
+	cfg.OpenAI.PromptMsgUrl = config.PromptUrl
 	cfg.Save()
 }
 
@@ -100,8 +140,9 @@ func GetDefaultConfig() (conf *config.Config) {
 	workDir := filepath.Join(homeDir, ".gogpt")
 	confPath := filepath.Join(workDir, config.ConfigFileName)
 	cfg := config.NewConf(workDir)
+	prompt := gpt.NewGPTPrompt(cfg)
 	if ok, _ := gutils.PathIsExist(confPath); !ok {
-		m := GetGoGPTConfigModel()
+		m := GetGoGPTConfigModel(prompt)
 		pgm := tea.NewProgram(m)
 		if _, err := pgm.Run(); err != nil {
 			gprint.PrintError("%+v", err)

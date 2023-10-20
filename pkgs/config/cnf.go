@@ -11,6 +11,7 @@ import (
 
 const (
 	ConfigFileName string = "gogpt_conf.json"
+	PromptUrl      string = "https://gitlab.com/moqsien/gpt_resources/-/raw/main/prompt.json"
 )
 
 type OpenAIConf struct {
@@ -28,6 +29,7 @@ type OpenAIConf struct {
 	ContextLen         int            `koanf,json:"context_length"`
 	Temperature        float32        `koanf,json:"temperature"`
 	PromptMsgUrl       string         `koanf,json:"prompt_msgs_url"`
+	PromptStr          string         `koanf,json:"prompt"`
 }
 
 type Config struct {
@@ -51,7 +53,7 @@ func NewConf(workDir string) (cfg *Config) {
 		cfg.Reload()
 	}
 	if cfg.OpenAI.PromptMsgUrl == "" {
-		cfg.OpenAI.PromptMsgUrl = "https://gitlab.com/moqsien/gpt_resources/-/raw/main/prompt.json"
+		cfg.OpenAI.PromptMsgUrl = PromptUrl
 	}
 	return
 }

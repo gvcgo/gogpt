@@ -32,38 +32,20 @@ func NewGPTUI(cnf *config.Config) (g *GPTUI) {
 	}
 	g.AddConversationUI()
 	g.AddConfUI()
-	g.AddGPTModelSelectorUI()
-	g.AddPromptSelectorUI()
 	return
 }
 
 func (that *GPTUI) AddConversationUI() {}
 
 func (that *GPTUI) AddConfUI() {
-	uconf := GetGoGPTConfigModel()
+	uconf := GetGoGPTConfigModel(that.Prompt)
 	uconf.SetSubmitCmd(func() tea.Msg {
-		SetConfig(that.CNF, uconf.Values())
+		vals := uconf.Values()
+		vals[gptPrompt] = that.Prompt.GetPromptByTile(vals[gptPrompt])
+		SetConfig(that.CNF, vals)
 		return returnFirst
 	})
 	that.GVM.AddTab("Configuration", uconf)
-}
-
-func (that *GPTUI) AddPromptSelectorUI() {
-	uprompt := GetPromptModel(that.Prompt)
-	uprompt.SetSubmitCmd(func() tea.Msg {
-		SetGPTPrompt(that.Prompt, uprompt.Values())
-		return returnFirst
-	})
-	that.GVM.AddTab("Prompt", uprompt)
-}
-
-func (that *GPTUI) AddGPTModelSelectorUI() {
-	ugmodel := GetModelSelector()
-	ugmodel.SetSubmitCmd(func() tea.Msg {
-		SetGPTModel(that.CNF, ugmodel.Values())
-		return returnFirst
-	})
-	that.GVM.AddTab("GPTModel", ugmodel)
 }
 
 func (that *GPTUI) Run() {
