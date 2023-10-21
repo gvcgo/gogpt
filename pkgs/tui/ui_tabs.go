@@ -54,6 +54,7 @@ func (that *GPTViewModel) GetCurrentModel() tea.Model {
 }
 
 func (that *GPTViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	currentModel := that.GetCurrentModel()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
@@ -72,13 +73,15 @@ func (that *GPTViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				that.ActiveTab = len(that.TabList) - 1
 			}
 		default:
-			currentModel := that.GetCurrentModel()
 			_, cmd := currentModel.Update(msg)
 			return that, cmd
 		}
 	case ReturnFirst:
 		that.ActiveTab = 0
 		return that, nil
+	default:
+		_, cmd := currentModel.Update(msg)
+		return that, cmd
 	}
 	return that, nil
 }
@@ -97,11 +100,8 @@ func (that *GPTViewModel) View() string {
 	}
 	row := strings.Join(newTabs, " | ")
 	doc.WriteString(row)
-
-	doc.WriteString("\n\n")
 	currentModel := that.GetCurrentModel()
-	doc.WriteString(currentModel.View())
-	return doc.String()
+	return lipgloss.JoinVertical(lipgloss.Left, doc.String()+"\n", currentModel.View())
 }
 
 func (that *GPTViewModel) AddTab(title string, model tea.Model) {

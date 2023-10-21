@@ -35,7 +35,10 @@ func NewGPTUI(cnf *config.Config) (g *GPTUI) {
 	return
 }
 
-func (that *GPTUI) AddConversationUI() {}
+func (that *GPTUI) AddConversationUI() {
+	uconv := NewConversationModel(that.CNF)
+	that.GVM.AddTab("Main", uconv)
+}
 
 func (that *GPTUI) AddConfUI() {
 	uconf := GetGoGPTConfigModel(that.Prompt)
@@ -50,7 +53,7 @@ func (that *GPTUI) AddConfUI() {
 
 func (that *GPTUI) Run() {
 	if that.Program == nil {
-		that.Program = tea.NewProgram(that.GVM)
+		that.Program = tea.NewProgram(that.GVM, tea.WithAltScreen())
 	}
 	if _, err := that.Program.Run(); err != nil {
 		gprint.PrintError("%+v", err)
