@@ -20,7 +20,7 @@ const (
 )
 
 type GPT struct {
-	OpenAIClient openai.Client
+	OpenAIClient *openai.Client
 	Stream       *openai.ChatCompletionStream
 	CNF          *config.Config
 }
@@ -37,6 +37,7 @@ func (that *GPT) initiate() {
 	var openaiConf openai.ClientConfig
 	if that.CNF.OpenAI.ApiType == openai.APITypeOpenAI {
 		openaiConf = openai.DefaultConfig(that.CNF.OpenAI.ApiKey)
+		openaiConf.BaseURL = "https://api.openai.com/v1"
 		if that.CNF.OpenAI.BaseUrl != "" {
 			openaiConf.BaseURL = that.CNF.OpenAI.BaseUrl
 		}
@@ -56,6 +57,7 @@ func (that *GPT) initiate() {
 		openaiConf.EmptyMessagesLimit = that.CNF.OpenAI.EmptyMessagesLimit
 	}
 	openaiConf.HTTPClient = that.getHttpClient()
+	that.OpenAIClient = openai.NewClientWithConfig(openaiConf)
 }
 
 func (that *GPT) getHttpClient() (httpClient *http.Client) {
@@ -103,9 +105,9 @@ func (that *GPT) SendMsg(msgs []openai.ChatCompletionMessage) (m string, err err
 	err = retry.Do(
 		func() error {
 			req := openai.ChatCompletionRequest{
-				Model:       that.CNF.OpenAI.Model,
+				Model:       openai.GPT3Dot5Turbo0613,
 				Messages:    msgs,
-				MaxTokens:   that.CNF.OpenAI.MaxTokens,
+				MaxTokens:   1024,
 				Temperature: that.CNF.OpenAI.Temperature,
 				N:           1,
 			}

@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -12,6 +13,8 @@ import (
 	"github.com/moqsien/gogpt/pkgs/config"
 	"github.com/moqsien/gogpt/pkgs/gpt"
 )
+
+type AnswerContinue string
 
 type ConversationModel struct {
 	Viewport     viewport.Model
@@ -55,11 +58,32 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		that.WindowWidth = msg.Width
 		that.WindowHeight = msg.Height
+		that.TextArea.SetWidth(that.WindowWidth)
 		that.Viewport.SetContent(fmt.Sprintf("height: %d, width: %d", that.WindowHeight, that.WindowWidth))
 		that.Viewport.Width = msg.Width
 		that.Viewport.Height = msg.Height - that.TextArea.Height() - lipgloss.Height(that.Spinner.View()) - lipgloss.Height(lipgloss.NewStyle().Foreground(lipgloss.Color("229")).Render("title\n"))
 	case tea.KeyMsg:
 		switch keyPress := msg.String(); keyPress {
+		case "enter":
+			messageStr := that.TextArea.Value()
+			if messageStr != "" {
+				that.Conversation.AddQuestion(messageStr)
+				msgList := that.Conversation.GetMessages()
+				answerStr, err := that.GPT.SendMsg(msgList)
+				isCompleted := false
+				if err == io.EOF {
+					isCompleted = true
+				} else {
+					cmds = append(cmds, func() tea.Msg {
+						return AnswerContinue("")
+					})
+				}
+				that.Conversation.AddAnswer(answerStr, isCompleted)
+
+				that.Viewport.SetContent(that.Conversation.Current.A)
+			}
+			that.TextArea.Reset()
+			that.TextArea.Blur()
 		default:
 			if !that.TextArea.Focused() {
 				cmd = that.TextArea.Focus()
@@ -68,6 +92,18 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			that.TextArea, cmd = that.TextArea.Update(msg)
 			cmds = append(cmds, cmd)
 		}
+	case AnswerContinue:
+		answerStr, err := that.GPT.RecvMsg()
+		isCompleted := false
+		if err == io.EOF {
+			isCompleted = true
+		} else {
+			cmds = append(cmds, func() tea.Msg {
+				return AnswerContinue("")
+			})
+		}
+		that.Conversation.AddAnswer(answerStr, isCompleted)
+		that.Viewport.SetContent(that.Conversation.Current.A)
 	}
 	return that, tea.Batch(cmds...)
 }

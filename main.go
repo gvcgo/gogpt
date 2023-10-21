@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/moqsien/gogpt/pkgs/gpt"
 	"github.com/moqsien/gogpt/pkgs/tui"
 )
 
@@ -50,8 +52,15 @@ func main() {
 	// GetPrompts()
 
 	cnf := tui.GetDefaultConfig()
-	gpt := tui.NewGPTUI(cnf)
-	gpt.Run()
+	// ui := tui.NewGPTUI(cnf)
+	// ui.Run()
+
+	g := gpt.NewGPT(cnf)
+	conv := gpt.NewConversation(cnf)
+	conv.AddQuestion("hello")
+	msg, err := g.SendMsg(conv.GetMessages())
+	fmt.Println(msg)
+	fmt.Println(err)
 
 	// tui.TextTest()
 
