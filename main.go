@@ -53,6 +53,8 @@ func main() {
 	gpt := tui.NewGPTUI(cnf)
 	gpt.Run()
 
+	// tui.TextTest()
+
 	// p := gpt.NewGPTPrompt(cnf)
 	// p.ChoosePrompt()
 	// fmt.Println(p.PromptStr())

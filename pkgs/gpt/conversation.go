@@ -20,7 +20,6 @@ type Conversation struct {
 	Current *QuesAnsw
 	Tokens  int
 	CNF     *config.Config
-	Prompt  *GPTPrompt
 }
 
 func NewConversation(cnf *config.Config) (conv *Conversation) {
@@ -29,7 +28,6 @@ func NewConversation(cnf *config.Config) (conv *Conversation) {
 		History: []QuesAnsw{},
 		CNF:     cnf,
 	}
-	conv.Prompt = NewGPTPrompt(cnf)
 	return
 }
 
@@ -61,7 +59,7 @@ func (that *Conversation) GetMessages() []openai.ChatCompletionMessage {
 	messages = append(
 		messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: that.Prompt.PromptStr(),
+			Content: that.CNF.OpenAI.PromptStr,
 		},
 	)
 	for _, c := range that.Context {

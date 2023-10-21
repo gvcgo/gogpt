@@ -37,7 +37,7 @@ func NewGPTUI(cnf *config.Config) (g *GPTUI) {
 
 func (that *GPTUI) AddConversationUI() {
 	uconv := NewConversationModel(that.CNF)
-	that.GVM.AddTab("Main", uconv)
+	that.GVM.AddTab("Conversation", uconv)
 }
 
 func (that *GPTUI) AddConfUI() {

@@ -53,6 +53,10 @@ func (that *GPTViewModel) GetCurrentModel() tea.Model {
 	return that.TabList[that.ActiveTab].Model
 }
 
+func (that *GPTViewModel) UpdateCurrentModel(m tea.Model) {
+	that.TabList[that.ActiveTab].Model = m
+}
+
 func (that *GPTViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	currentModel := that.GetCurrentModel()
 	switch msg := msg.(type) {
@@ -73,14 +77,16 @@ func (that *GPTViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				that.ActiveTab = len(that.TabList) - 1
 			}
 		default:
-			_, cmd := currentModel.Update(msg)
+			m, cmd := currentModel.Update(msg)
+			that.UpdateCurrentModel(m)
 			return that, cmd
 		}
 	case ReturnFirst:
 		that.ActiveTab = 0
 		return that, nil
 	default:
-		_, cmd := currentModel.Update(msg)
+		m, cmd := currentModel.Update(msg)
+		that.UpdateCurrentModel(m)
 		return that, cmd
 	}
 	return that, nil
