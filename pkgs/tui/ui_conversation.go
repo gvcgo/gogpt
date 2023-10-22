@@ -50,7 +50,7 @@ func (that *ConversationModel) Init() tea.Cmd {
 	return tea.Batch(that.Spinner.Tick, textarea.Blink)
 }
 
-// TODO: keymap & viewpord render
+// TODO: keymap & viewpord render & help info
 func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
@@ -90,6 +90,9 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				that.Viewport.SetContent(that.Conversation.Current.A)
 				that.Viewport.GotoBottom()
 			}
+		case "up", "down":
+			that.Viewport, cmd = that.Viewport.Update(msg)
+			cmds = append(cmds, cmd)
 		default:
 			if !that.TextArea.Focused() && !that.Receiving {
 				cmd = that.TextArea.Focus()
