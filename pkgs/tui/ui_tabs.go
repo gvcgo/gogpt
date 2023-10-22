@@ -62,7 +62,7 @@ func (that *GPTViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
-		case "ctrl+c", "q", "esc":
+		case "ctrl+c", "esc":
 			return that, tea.Quit
 		case "right":
 			if that.ActiveTab < len(that.TabList)-1 {

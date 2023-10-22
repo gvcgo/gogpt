@@ -79,8 +79,8 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					})
 				}
 				that.Conversation.AddAnswer(answerStr, isCompleted)
-
 				that.Viewport.SetContent(that.Conversation.Current.A)
+				that.Viewport.GotoBottom()
 			}
 			that.TextArea.Reset()
 			that.TextArea.Blur()
@@ -103,7 +103,10 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			})
 		}
 		that.Conversation.AddAnswer(answerStr, isCompleted)
-		that.Viewport.SetContent(that.Conversation.Current.A)
+		if that.Conversation.Current != nil {
+			that.Viewport.SetContent(that.Conversation.Current.A)
+			that.Viewport.GotoBottom()
+		}
 	}
 	return that, tea.Batch(cmds...)
 }

@@ -22,6 +22,7 @@ var (
 	gptModel       string = "select_model"
 	apiKey         string = "apiKey"
 	proxy          string = "proxy"
+	apiType        string = "apiType"
 	apiVersion     string = "apiVersion"
 	orgID          string = "orgID"
 	engine         string = "engine"
@@ -70,6 +71,14 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 	mi.AddOneInput(apiKey, input.MWithPlaceholder("api_key"), input.MWithWidth(100))
 	mi.AddOneInput(proxy, input.MWithPlaceholder("proxy"), input.MWithWidth(150))
 	mi.AddOneInput(apiVersion, input.MWithPlaceholder("api_version"), input.MWithWidth(100))
+
+	gptApiTypeList := []string{
+		string(openai.APITypeOpenAI),
+		string(openai.APITypeAzure),
+		string(openai.APITypeAzureAD),
+	}
+	mi.AddOneOption(apiType, gptApiTypeList, input.MWithPlaceholder("gpt_api_type"), input.MWithWidth(100))
+
 	mi.AddOneInput(orgID, input.MWithPlaceholder("org_id"), input.MWithWidth(100))
 	mi.AddOneInput(engine, input.MWithPlaceholder("engine"), input.MWithWidth(100))
 	mi.AddOneInput(limit, input.MWithPlaceholder("empty_message_limit"), input.MWithWidth(100))
@@ -95,6 +104,9 @@ func SetConfig(cfg *config.Config, values map[string]string) {
 		}
 		if values[proxy] != "" {
 			cfg.OpenAI.Proxy = values[proxy]
+		}
+		if values[apiType] != "" {
+			cfg.OpenAI.ApiType = openai.APIType(values[apiType])
 		}
 		if values[apiVersion] != "" {
 			cfg.OpenAI.ApiVersion = values[apiVersion]

@@ -35,7 +35,7 @@ func NewGPT(cnf *config.Config) (g *GPT) {
 
 func (that *GPT) initiate() {
 	var openaiConf openai.ClientConfig
-	if that.CNF.OpenAI.ApiType == openai.APITypeOpenAI {
+	if that.CNF.OpenAI.ApiType == openai.APITypeOpenAI || that.CNF.OpenAI.ApiType == "" {
 		openaiConf = openai.DefaultConfig(that.CNF.OpenAI.ApiKey)
 		openaiConf.BaseURL = "https://api.openai.com/v1"
 		if that.CNF.OpenAI.BaseUrl != "" {
@@ -102,10 +102,14 @@ func (that *GPT) parseProxy() (scheme, host string, port int) {
 }
 
 func (that *GPT) SendMsg(msgs []openai.ChatCompletionMessage) (m string, err error) {
+	gptModel := that.CNF.OpenAI.Model
+	if gptModel == "" {
+		gptModel = openai.GPT3Dot5Turbo0613
+	}
 	err = retry.Do(
 		func() error {
 			req := openai.ChatCompletionRequest{
-				Model:       openai.GPT3Dot5Turbo0613,
+				Model:       that.CNF.OpenAI.Model,
 				Messages:    msgs,
 				MaxTokens:   1024,
 				Temperature: that.CNF.OpenAI.Temperature,
@@ -136,6 +140,7 @@ func (that *GPT) RecvMsg() (m string, err error) {
 	if that.Stream == nil {
 		return "", fmt.Errorf("no stream found")
 	}
+	// TODO: add retry
 	resp, err := that.Stream.Recv()
 	if err != nil {
 		return "", err
