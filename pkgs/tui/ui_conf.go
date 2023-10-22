@@ -27,7 +27,6 @@ var (
 	orgID          string = "orgID"
 	engine         string = "engine"
 	limit          string = "empty_limit"
-	timeout        string = "timeout"
 	maxTokens      string = "maxTokens"
 	ctxLen         string = "contextLength"
 	temperature    string = "temperature"
@@ -82,7 +81,6 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 	mi.AddOneInput(orgID, input.MWithPlaceholder("org_id"), input.MWithWidth(100))
 	mi.AddOneInput(engine, input.MWithPlaceholder("engine"), input.MWithWidth(100))
 	mi.AddOneInput(limit, input.MWithPlaceholder("empty_message_limit"), input.MWithWidth(100))
-	mi.AddOneInput(timeout, input.MWithPlaceholder("timeout"), input.MWithWidth(100))
 	mi.AddOneInput(maxTokens, input.MWithPlaceholder("max_tokens"), input.MWithWidth(100))
 	mi.AddOneInput(ctxLen, input.MWithPlaceholder("context_length"), input.MWithWidth(100))
 	mi.AddOneInput(temperature, input.MWithPlaceholder("temperature"), input.MWithWidth(100))
@@ -125,11 +123,6 @@ func SetConfig(cfg *config.Config, values map[string]string) {
 		}
 
 		cfg.OpenAI.EmptyMessagesLimit = gconv.Uint(values[limit])
-		tt := gconv.Int64(values[timeout])
-		if tt <= 0 {
-			tt = 30
-		}
-		cfg.OpenAI.TimeOut = tt
 		mTokens := gconv.Int(values[maxTokens])
 		if mTokens == 0 {
 			mTokens = 1024

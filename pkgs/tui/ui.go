@@ -53,7 +53,7 @@ func (that *GPTUI) AddConfUI() {
 
 func (that *GPTUI) Run() {
 	if that.Program == nil {
-		that.Program = tea.NewProgram(that.GVM, tea.WithAltScreen())
+		that.Program = tea.NewProgram(that.GVM, tea.WithAltScreen(), tea.WithMouseCellMotion())
 	}
 	if _, err := that.Program.Run(); err != nil {
 		gprint.PrintError("%+v", err)

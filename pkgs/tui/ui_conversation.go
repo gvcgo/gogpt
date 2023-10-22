@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/charmbracelet/bubbles/cursor"
@@ -48,9 +47,10 @@ func NewConversationModel(cnf *config.Config) (cvm *ConversationModel) {
 }
 
 func (that *ConversationModel) Init() tea.Cmd {
-	return textarea.Blink
+	return tea.Batch(that.Spinner.Tick, textarea.Blink)
 }
 
+// TODO: keymap & viewpord render
 func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
@@ -59,34 +59,39 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		that.WindowWidth = msg.Width
 		that.WindowHeight = msg.Height
 		that.TextArea.SetWidth(that.WindowWidth)
-		that.Viewport.SetContent(fmt.Sprintf("height: %d, width: %d", that.WindowHeight, that.WindowWidth))
-		that.Viewport.Width = msg.Width
-		// that.Viewport.HighPerformanceRendering = true
+		that.Viewport.Width = msg.Width - 5
+		that.Viewport.MouseWheelEnabled = true
 		that.Viewport.Height = msg.Height - that.TextArea.Height() - lipgloss.Height(that.Spinner.View()) - lipgloss.Height(lipgloss.NewStyle().Foreground(lipgloss.Color("229")).Render("title\n"))
+	case spinner.TickMsg:
+		if that.Receiving {
+			that.Spinner, cmd = that.Spinner.Update(msg)
+			cmds = append(cmds, cmd)
+		}
 	case tea.KeyMsg:
 		switch keyPress := msg.String(); keyPress {
 		case "enter":
 			messageStr := that.TextArea.Value()
+			that.TextArea.Reset()
+			that.TextArea.Blur()
 			if messageStr != "" {
 				that.Conversation.AddQuestion(messageStr)
 				msgList := that.Conversation.GetMessages()
+				that.Receiving = true
 				answerStr, err := that.GPT.SendMsg(msgList)
-				isCompleted := false
 				if err == io.EOF {
-					isCompleted = true
+					that.Receiving = false
 				} else {
 					cmds = append(cmds, func() tea.Msg {
-						return AnswerContinue("")
+						var msg AnswerContinue
+						return msg
 					})
 				}
-				that.Conversation.AddAnswer(answerStr, isCompleted)
+				that.Conversation.AddAnswer(answerStr, !that.Receiving)
 				that.Viewport.SetContent(that.Conversation.Current.A)
 				that.Viewport.GotoBottom()
 			}
-			that.TextArea.Reset()
-			that.TextArea.Blur()
 		default:
-			if !that.TextArea.Focused() {
+			if !that.TextArea.Focused() && !that.Receiving {
 				cmd = that.TextArea.Focus()
 				cmds = append(cmds, cmd)
 			}
@@ -95,15 +100,15 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case AnswerContinue:
 		answerStr, err := that.GPT.RecvMsg()
-		isCompleted := false
 		if err == io.EOF {
-			isCompleted = true
+			that.Receiving = false
 		} else {
 			cmds = append(cmds, func() tea.Msg {
-				return AnswerContinue("")
+				var msg AnswerContinue
+				return msg
 			})
 		}
-		that.Conversation.AddAnswer(answerStr, isCompleted)
+		that.Conversation.AddAnswer(answerStr, !that.Receiving)
 		if that.Conversation.Current != nil {
 			that.Viewport.SetContent(that.Conversation.Current.A)
 			that.Viewport.GotoBottom()

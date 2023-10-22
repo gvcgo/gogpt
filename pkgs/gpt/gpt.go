@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"os"
 	"strconv"
-	"time"
 
 	retry "github.com/avast/retry-go"
 	"github.com/moqsien/gogpt/pkgs/config"
@@ -24,6 +23,7 @@ type GPT struct {
 	OpenAIClient *openai.Client
 	Stream       *openai.ChatCompletionStream
 	CNF          *config.Config
+	HttpClient   *http.Client
 }
 
 func NewGPT(cnf *config.Config) (g *GPT) {
@@ -61,26 +61,25 @@ func (that *GPT) initiate() {
 	that.OpenAIClient = openai.NewClientWithConfig(openaiConf)
 }
 
-func (that *GPT) getHttpClient() (httpClient *http.Client) {
-	tt := time.Duration(that.CNF.OpenAI.TimeOut) * time.Second
+func (that *GPT) getHttpClient() *http.Client {
 	scheme, host, port := that.parseProxy()
-	httpClient = &http.Client{Timeout: tt}
+	that.HttpClient = &http.Client{}
 	switch scheme {
 	case "http", "https":
 		pUrl, err := url.Parse(that.CNF.OpenAI.Proxy)
 		if err != nil {
-			return
+			return that.HttpClient
 		}
-		httpClient.Transport = &http.Transport{
+		that.HttpClient.Transport = &http.Transport{
 			Proxy: http.ProxyURL(pUrl),
 		}
 	case "socks5":
 		if dialer, err := nproxy.SOCKS5("tcp", fmt.Sprintf("%s:%d", host, port), nil, nproxy.Direct); err == nil {
-			httpClient.Transport = &http.Transport{Dial: dialer.Dial}
+			that.HttpClient.Transport = &http.Transport{Dial: dialer.Dial}
 		}
 	default:
 	}
-	return
+	return that.HttpClient
 }
 
 func (that *GPT) parseProxy() (scheme, host string, port int) {
@@ -107,6 +106,7 @@ func (that *GPT) SendMsg(msgs []openai.ChatCompletionMessage) (m string, err err
 	if gptModel == "" {
 		gptModel = openai.GPT3Dot5Turbo0613
 	}
+	that.Stream = nil
 	err = retry.Do(
 		func() error {
 			req := openai.ChatCompletionRequest{
@@ -141,26 +141,21 @@ func (that *GPT) RecvMsg() (m string, err error) {
 	if that.Stream == nil {
 		return "", fmt.Errorf("no stream found")
 	}
-	e := retry.Do(
-		func() error {
+	resp, recvErr := that.Stream.Recv()
+	if recvErr != nil || recvErr == io.EOF {
+		return "", recvErr
+	} else if recvErr == nil {
+		m = resp.Choices[0].Delta.Content
+		return m, nil
+	} else {
+		err = retry.Do(func() error {
 			resp, recvErr := that.Stream.Recv()
-			if recvErr != nil && recvErr != io.EOF {
-				m = ""
-				return err
-			}
-			if recvErr == io.EOF && len(resp.Choices) == 0 {
-				err = recvErr
-				m = ""
-				return nil
+			if recvErr != nil {
+				return recvErr
 			}
 			m = resp.Choices[0].Delta.Content
 			return nil
-		},
-		retry.Attempts(3),
-		retry.LastErrorOnly(true),
-	)
-	if e != nil {
-		err = e
+		})
 	}
 	return
 }

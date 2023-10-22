@@ -23,7 +23,6 @@ type OpenAIConf struct {
 	Engine             string         `koanf,json:"engine"`
 	EmptyMessagesLimit uint           `koanf,json:"empty_msg_limit"`
 	Proxy              string         `koanf,json:"proxy"`
-	TimeOut            int64          `koanf,json:"timeout_seconds"`
 	Model              string         `koanf,json:"model"`
 	MaxTokens          int            `koanf,json:"max_tokens"`
 	ContextLen         int            `koanf,json:"context_length"`

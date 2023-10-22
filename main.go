@@ -57,10 +57,19 @@ func main() {
 	// conv := gpt.NewConversation(cnf)
 	// conv.AddQuestion("write a quick sort in go, please!")
 	// ctx := conv.GetMessages()
-	// fmt.Printf("%+v", ctx)
+	// // fmt.Printf("%+v", ctx)
 	// msg, err := g.SendMsg(ctx)
-	// fmt.Println(msg)
-	// fmt.Println(err)
+	// if err == nil {
+	// 	fmt.Print(msg)
+	// 	for {
+	// 		msg, err = g.RecvMsg()
+	// 		fmt.Printf(msg)
+	// 		if err != nil {
+	// 			fmt.Println(err)
+	// 			break
+	// 		}
+	// 	}
+	// }
 
 	// tui.TextTest()
 
