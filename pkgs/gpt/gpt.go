@@ -3,6 +3,7 @@ package gpt
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -140,12 +141,27 @@ func (that *GPT) RecvMsg() (m string, err error) {
 	if that.Stream == nil {
 		return "", fmt.Errorf("no stream found")
 	}
-	// TODO: add retry
-	resp, err := that.Stream.Recv()
-	if err != nil {
-		return "", err
+	e := retry.Do(
+		func() error {
+			resp, recvErr := that.Stream.Recv()
+			if recvErr != nil && recvErr != io.EOF {
+				m = ""
+				return err
+			}
+			if recvErr == io.EOF && len(resp.Choices) == 0 {
+				err = recvErr
+				m = ""
+				return nil
+			}
+			m = resp.Choices[0].Delta.Content
+			return nil
+		},
+		retry.Attempts(3),
+		retry.LastErrorOnly(true),
+	)
+	if e != nil {
+		err = e
 	}
-	m = resp.Choices[0].Delta.Content
 	return
 }
 

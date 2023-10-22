@@ -61,6 +61,7 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		that.TextArea.SetWidth(that.WindowWidth)
 		that.Viewport.SetContent(fmt.Sprintf("height: %d, width: %d", that.WindowHeight, that.WindowWidth))
 		that.Viewport.Width = msg.Width
+		// that.Viewport.HighPerformanceRendering = true
 		that.Viewport.Height = msg.Height - that.TextArea.Height() - lipgloss.Height(that.Spinner.View()) - lipgloss.Height(lipgloss.NewStyle().Foreground(lipgloss.Color("229")).Render("title\n"))
 	case tea.KeyMsg:
 		switch keyPress := msg.String(); keyPress {
