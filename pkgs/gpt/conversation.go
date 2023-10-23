@@ -20,6 +20,7 @@ type Conversation struct {
 	Current *QuesAnsw
 	Tokens  int
 	CNF     *config.Config
+	Cursor  int
 }
 
 func NewConversation(cnf *config.Config) (conv *Conversation) {
@@ -36,6 +37,7 @@ func (that *Conversation) AddQuestion(ques string) {
 		Q: ques,
 	}
 	that.Tokens = 0
+	that.ResetCursor()
 }
 
 func (that *Conversation) AddAnswer(answ string, completed bool) {
@@ -122,12 +124,36 @@ func (that *Conversation) Len() int {
 	return l
 }
 
-func (that *Conversation) GetQuestionByIndex(idx int) string {
-	if idx < 0 || idx >= that.Len() {
-		return ""
+func (that *Conversation) ResetCursor() {
+	that.Cursor = that.Len() - 1
+}
+
+func (that *Conversation) GetQAByCursor() QuesAnsw {
+	if that.Cursor < len(that.History) {
+		return that.History[that.Cursor]
 	}
-	if idx < len(that.History) {
-		return that.History[idx].Q
+
+	if that.Current == nil {
+		return that.Context[that.Cursor-len(that.History)]
+	} else if that.Cursor > 0 {
+		return that.Context[that.Cursor-len(that.History)-1]
+	} else {
+		return *that.Current
 	}
-	return that.Context[idx-len(that.History)].Q
+}
+
+func (that *Conversation) GetPrevQA() QuesAnsw {
+	that.Cursor--
+	if that.Cursor < 0 {
+		that.ResetCursor()
+	}
+	return that.GetQAByCursor()
+}
+
+func (that *Conversation) GetNextQA() QuesAnsw {
+	that.Cursor++
+	if that.Cursor > that.Len()-1 {
+		that.Cursor = 0
+	}
+	return that.GetQAByCursor()
 }
