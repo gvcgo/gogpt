@@ -6,7 +6,7 @@
 
 ### 功能描述
 
-比[j178>>chatgpt](https://github.com/j178/chatgpt)更好用。
+比[j178](https://github.com/j178/chatgpt)更好用。
 ---------------
 - 支持本地代理配置(http或者socks5)。
 - 可以在TUI界面进行配置，无需手动编辑json文件或者设置环境变量等。
@@ -39,7 +39,7 @@
 
 ### Features
 
-Easies to use than [j178>>chatgpt](https://github.com/j178/chatgpt).
+Easies to use than [j178](https://github.com/j178/chatgpt).
 ---------------
 - Local proxy settings.
 - Configurations in TUI.
@@ -50,3 +50,15 @@ Easies to use than [j178>>chatgpt](https://github.com/j178/chatgpt).
 - [go-openai](https://github.com/sashabaranov/go-openai)
 - [bubbletea](https://github.com/charmbracelet/bubbletea)
 - [chatgpt](https://github.com/j178/chatgpt)
+
+### Gallaries
+
+![config](https://github.com/moqsien/gogpt/blob/main/docs/gogpt_conf.png)
+
+![help](https://github.com/moqsien/gogpt/blob/main/docs/gogpt_help_info.png)
+
+![main_tab](https://github.com/moqsien/gogpt/blob/main/docs/gogpt_main.png)
+
+![quicksort1](https://github.com/moqsien/gogpt/blob/main/docs/gpgpt_quicksort_1.png)
+
+![quicksort2](https://github.com/moqsien/gogpt/blob/main/docs/gpgpt_quicksort_2.png)
