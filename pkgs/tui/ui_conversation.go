@@ -2,15 +2,20 @@ package tui
 
 import (
 	"io"
+	"strings"
+	"unicode"
 
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/moqsien/gogpt/pkgs/config"
 	"github.com/moqsien/gogpt/pkgs/gpt"
+	"github.com/muesli/reflow/wordwrap"
+	"github.com/muesli/reflow/wrap"
 )
 
 type AnswerContinue string
@@ -19,6 +24,7 @@ type ConversationModel struct {
 	Viewport     viewport.Model
 	TextArea     textarea.Model
 	Spinner      spinner.Model
+	R            *glamour.TermRenderer
 	CNF          *config.Config
 	WindowHeight int
 	WindowWidth  int
@@ -33,7 +39,7 @@ func NewConversationModel(cnf *config.Config) (cvm *ConversationModel) {
 		GPT:          gpt.NewGPT(cnf),
 		Conversation: gpt.NewConversation(cnf),
 	}
-	cvm.Spinner = spinner.New()
+	cvm.Spinner = spinner.New(spinner.WithSpinner(spinner.Meter))
 	cvm.TextArea = textarea.New()
 	cvm.TextArea.Cursor.SetMode(cursor.CursorBlink)
 	cvm.TextArea.Placeholder = "enter you message"
@@ -42,7 +48,12 @@ func NewConversationModel(cnf *config.Config) (cvm *ConversationModel) {
 	cvm.TextArea.ShowLineNumbers = false
 	cvm.TextArea.Focus()
 	cvm.TextArea.CursorEnd()
+	cvm.TextArea.SetHeight(2)
 	cvm.Viewport = viewport.Model{}
+	cvm.R, _ = glamour.NewTermRenderer(
+		glamour.WithEnvironmentConfig(),
+		glamour.WithWordWrap(0),
+	)
 	return
 }
 
@@ -50,7 +61,7 @@ func (that *ConversationModel) Init() tea.Cmd {
 	return tea.Batch(that.Spinner.Tick, textarea.Blink)
 }
 
-// TODO: keymap & viewpord render & help info
+// TODO: keymap & viewpord render & help info & logfile
 func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
@@ -87,7 +98,7 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					})
 				}
 				that.Conversation.AddAnswer(answerStr, !that.Receiving)
-				that.Viewport.SetContent(that.Conversation.Current.A)
+				that.Viewport.SetContent(that.RenderQA(*that.Conversation.Current))
 				that.Viewport.GotoBottom()
 			}
 		case "up", "down":
@@ -113,11 +124,67 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		that.Conversation.AddAnswer(answerStr, !that.Receiving)
 		if that.Conversation.Current != nil {
-			that.Viewport.SetContent(that.Conversation.Current.A)
+			that.Viewport.SetContent(that.RenderQA(*that.Conversation.Current))
 			that.Viewport.GotoBottom()
 		}
 	}
 	return that, tea.Batch(cmds...)
+}
+
+func (that *ConversationModel) ContainsCJK(s string) bool {
+	for _, r := range s {
+		if unicode.In(r, unicode.Han, unicode.Hangul, unicode.Hiragana, unicode.Katakana) {
+			return true
+		}
+	}
+	return false
+}
+
+func (that *ConversationModel) EnsureTrailingNewline(s string) string {
+	if !strings.HasSuffix(s, "\n") {
+		return s + "\n"
+	}
+	return s
+}
+
+var (
+	senderStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("5"))
+	botStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("6"))
+	// errorStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("1"))
+	// footerStyle = lipgloss.NewStyle().
+	// 		Height(1).
+	// 		BorderTop(true).
+	// 		BorderStyle(lipgloss.NormalBorder()).
+	// 		BorderForeground(lipgloss.Color("8")).
+	// 		Faint(true)
+)
+
+func (that *ConversationModel) RenderQA(qa gpt.QuesAnsw) string {
+	var (
+		b       strings.Builder
+		content string
+	)
+	b.WriteString(senderStyle.Render("You: "))
+
+	content = qa.Q
+	if that.ContainsCJK(content) {
+		content = wrap.String(content, that.WindowWidth-5)
+	} else {
+		content = wordwrap.String(content, that.WindowWidth-5)
+	}
+	content, _ = that.R.Render(content)
+	b.WriteString(that.EnsureTrailingNewline(content))
+
+	b.WriteString(botStyle.Render("Bot: "))
+	content = qa.A
+	if that.ContainsCJK(content) {
+		content = wrap.String(content, that.WindowWidth-5)
+	} else {
+		content = wordwrap.String(content, that.WindowWidth-5)
+	}
+	content, _ = that.R.Render(content)
+	b.WriteString(that.EnsureTrailingNewline(content))
+	return b.String()
 }
 
 func (that *ConversationModel) View() string {
