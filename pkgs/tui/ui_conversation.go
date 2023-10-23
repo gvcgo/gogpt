@@ -102,14 +102,28 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				that.Viewport.GotoBottom()
 			}
 		case "up", "down":
-			that.Viewport, cmd = that.Viewport.Update(msg)
-			cmds = append(cmds, cmd)
+			if !that.Receiving {
+				that.Viewport, cmd = that.Viewport.Update(msg)
+				cmds = append(cmds, cmd)
+			}
 		case "ctrl+p":
-			qa := that.Conversation.GetPrevQA()
-			that.Viewport.SetContent(that.RenderQA(qa))
+			if !that.Receiving {
+				qa := that.Conversation.GetPrevQA()
+				that.Viewport.SetContent(that.RenderQA(qa))
+			}
 		case "ctrl+f":
-			qa := that.Conversation.GetNextQA()
-			that.Viewport.SetContent(that.RenderQA(qa))
+			if !that.Receiving {
+				qa := that.Conversation.GetNextQA()
+				that.Viewport.SetContent(that.RenderQA(qa))
+			}
+		case "ctrl+s":
+			if !that.Receiving {
+				that.Conversation.Save()
+			}
+		case "ctrl+l":
+			if !that.Receiving {
+				that.Conversation.Load()
+			}
 		default:
 			if !that.TextArea.Focused() && !that.Receiving {
 				cmd = that.TextArea.Focus()

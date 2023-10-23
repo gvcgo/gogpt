@@ -1,7 +1,10 @@
 package gpt
 
 import (
+	"path/filepath"
+
 	"github.com/moqsien/gogpt/pkgs/config"
+	"github.com/moqsien/goutils/pkgs/koanfer"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -9,18 +12,29 @@ import (
 Manage Chatgpt conversation
 */
 
+const (
+	ConversationFileName string = "gpt_conversation.json"
+)
+
 type QuesAnsw struct {
-	Q string // question
-	A string // answer
+	Q string `koanf,json:"question"` // question
+	A string `koanf,json:"answer"`   // answer
+}
+
+type ConversationSaver struct {
+	QAList []QuesAnsw `koanf,json:"qa_list"`
+	Prompt string     `koanf,json:"prompt"`
 }
 
 type Conversation struct {
 	Context []QuesAnsw
 	History []QuesAnsw
 	Current *QuesAnsw
+	Saver   *ConversationSaver `koanf,json:"conversation"`
 	Tokens  int
 	CNF     *config.Config
 	Cursor  int
+	path    string
 }
 
 func NewConversation(cnf *config.Config) (conv *Conversation) {
@@ -28,6 +42,10 @@ func NewConversation(cnf *config.Config) (conv *Conversation) {
 		Context: []QuesAnsw{},
 		History: []QuesAnsw{},
 		CNF:     cnf,
+		Saver: &ConversationSaver{
+			QAList: []QuesAnsw{},
+		},
+		path: filepath.Join(cnf.GetWorkDir(), ConversationFileName),
 	}
 	return
 }
@@ -100,20 +118,7 @@ func (that *Conversation) ClearContext() {
 	that.History = append(that.History, that.Context...)
 	that.Context = nil
 	that.Tokens = 0
-}
-
-func (that *Conversation) CurrentAnswer() string {
-	if that.Current == nil {
-		return ""
-	}
-	return that.Current.A
-}
-
-func (that *Conversation) LastAnswer() string {
-	if len(that.Context) == 0 {
-		return ""
-	}
-	return that.Context[len(that.Context)-1].A
+	that.ResetCursor()
 }
 
 func (that *Conversation) Len() int {
@@ -156,4 +161,30 @@ func (that *Conversation) GetNextQA() QuesAnsw {
 		that.Cursor = 0
 	}
 	return that.GetQAByCursor()
+}
+
+func (that *Conversation) Save() {
+	that.Saver.QAList = append(that.Saver.QAList, that.History...)
+	that.Saver.QAList = append(that.Saver.QAList, that.Context...)
+	that.Saver.Prompt = that.CNF.OpenAI.PromptStr
+	if k, err := koanfer.NewKoanfer(that.path); err == nil {
+		k.Save(that.Saver)
+	}
+}
+
+func (that *Conversation) Load() {
+	if k, err := koanfer.NewKoanfer(that.path); err == nil {
+		err = k.Load(that.Saver)
+		if err != nil {
+			return
+		}
+		that.CNF.OpenAI.PromptStr = that.Saver.Prompt
+		total := len(that.Saver.QAList)
+		if total > that.CNF.OpenAI.ContextLen {
+			that.Context = that.Saver.QAList[total-that.CNF.OpenAI.ContextLen:]
+			that.History = that.Saver.QAList[:total-that.CNF.OpenAI.ContextLen]
+		} else {
+			that.Context = that.Saver.QAList
+		}
+	}
 }
