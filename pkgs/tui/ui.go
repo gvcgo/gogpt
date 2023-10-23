@@ -32,6 +32,7 @@ func NewGPTUI(cnf *config.Config) (g *GPTUI) {
 	}
 	g.AddConversationUI()
 	g.AddConfUI()
+	g.AddHelpInfo()
 	return
 }
 
@@ -49,6 +50,11 @@ func (that *GPTUI) AddConfUI() {
 		return returnFirst
 	})
 	that.GVM.AddTab("Configuration", uconf)
+}
+
+func (that *GPTUI) AddHelpInfo() {
+	helpInfo := NewHelpModel()
+	that.GVM.AddTab("HelpInfo", helpInfo)
 }
 
 func (that *GPTUI) Run() {
