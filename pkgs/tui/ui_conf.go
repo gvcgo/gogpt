@@ -3,6 +3,7 @@ package tui
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gogf/gf/util/gconv"
@@ -13,6 +14,14 @@ import (
 	"github.com/moqsien/goutils/pkgs/gutils"
 	openai "github.com/sashabaranov/go-openai"
 )
+
+type PromptString string
+
+func (that PromptString) Less(prompt gutils.IComparable) bool {
+	p := prompt.(PromptString)
+	r := strings.Compare(string(that), string(p))
+	return r == -1
+}
 
 /*
 Gogpt Config Model
@@ -60,12 +69,18 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		openai.GPT3Babbage002,
 	}
 	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("gpt_model"), input.MWithWidth(100))
-	gptPromptList := []string{}
-	// TODO: sort
+	gptPromptList := []gutils.IComparable{}
 	for _, item := range *prompt.PromptList {
-		gptPromptList = append(gptPromptList, item.Title)
+		gptPromptList = append(gptPromptList, PromptString(item.Title))
 	}
-	mi.AddOneOption(gptPrompt, gptPromptList, input.MWithPlaceholder("gpt_prompt"), input.MWithWidth(100))
+	gutils.QuickSort(gptPromptList, 0, len(gptPromptList)-1)
+
+	pList := []string{}
+	for _, p := range gptPromptList {
+		pStr := p.(PromptString)
+		pList = append(pList, string(pStr))
+	}
+	mi.AddOneOption(gptPrompt, pList, input.MWithPlaceholder("gpt_prompt"), input.MWithWidth(100))
 	mi.AddOneInput(gptPromptValue, input.MWithPlaceholder("enter_gpt_prompt"), input.MWithWidth(100))
 
 	mi.AddOneInput(apiKey, input.MWithPlaceholder("api_key"), input.MWithWidth(100))

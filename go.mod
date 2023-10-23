@@ -12,6 +12,7 @@ require (
 	github.com/moqsien/goutils v0.6.6
 	github.com/muesli/reflow v0.3.0
 	github.com/pkoukk/tiktoken-go v0.1.6
+	github.com/postfinance/single v0.0.2
 	github.com/sashabaranov/go-openai v1.16.0
 	golang.org/x/net v0.15.0
 )

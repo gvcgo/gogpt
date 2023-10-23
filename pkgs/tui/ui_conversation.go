@@ -94,7 +94,7 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return that.Spinner.Tick()
 					},
 				)
-				answerStr, err := that.GPT.SendMsg(msgList) // TODO: logfile
+				answerStr, err := that.GPT.SendMsg(msgList)
 				if err == io.EOF {
 					that.Receiving = false
 				} else {
@@ -231,6 +231,13 @@ func (that *ConversationModel) RenderFooter() string {
 	if that.Conversation.Len() > 1 {
 		conversationIdx := fmt.Sprintf("%s %d/%d", "Q&A", that.Conversation.Cursor+1, that.Conversation.Len())
 		columns = append(columns, conversationIdx)
+	}
+
+	// tokens
+	msgs := that.Conversation.GetMessages()
+	if len(msgs) > 0 {
+		token := gpt.NumTokensFromMessages(msgs, that.CNF.OpenAI.Model)
+		columns = append(columns, fmt.Sprintf("Tokens %d", token))
 	}
 
 	// switch tab

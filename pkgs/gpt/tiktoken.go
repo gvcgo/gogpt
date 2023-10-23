@@ -34,28 +34,28 @@ func NumTokensFromMessages(messages []openai.ChatCompletionMessage, model string
 		return NumTokensFromMessages(messages, openai.GPT40613)
 	default:
 		if strings.Contains(model, openai.GPT3Dot5Turbo) {
-			gprint.PrintWarning(
-				"%s may update over time. Returning num tokens assuming %s.",
-				openai.GPT3Dot5Turbo,
-				openai.GPT3Dot5Turbo0613,
-			)
+			// gprint.PrintWarning(
+			// 	"%s may update over time. Returning num tokens assuming %s.",
+			// 	openai.GPT3Dot5Turbo,
+			// 	openai.GPT3Dot5Turbo0613,
+			// )
 			return NumTokensFromMessages(messages, openai.GPT3Dot5Turbo0613)
 		} else if strings.Contains(model, openai.GPT4) {
-			gprint.PrintWarning(
-				"%s may update over time. Returning num tokens assuming %s.",
-				openai.GPT4,
-				openai.GPT40613,
-			)
+			// gprint.PrintWarning(
+			// 	"%s may update over time. Returning num tokens assuming %s.",
+			// 	openai.GPT4,
+			// 	openai.GPT40613,
+			// )
 			return NumTokensFromMessages(messages, openai.GPT40613)
 		} else {
-			gprint.PrintError(
-				"num_tokens_from_messages() is not implemented for model %s.",
-				model,
-			)
-			gprint.PrintInfo(
-				"See %s for information on how messages are converted to tokens.",
-				"https://github.com/openai/openai-python/blob/main/chatml.md",
-			)
+			// gprint.PrintError(
+			// 	"num_tokens_from_messages() is not implemented for model %s.",
+			// 	model,
+			// )
+			// gprint.PrintInfo(
+			// 	"See %s for information on how messages are converted to tokens.",
+			// 	"https://github.com/openai/openai-python/blob/main/chatml.md",
+			// )
 			return
 		}
 	}
