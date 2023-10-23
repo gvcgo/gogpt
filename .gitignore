@@ -1,4 +1,8 @@
 .exe
 .vscode
-.zip
+*.zip
 gogpt
+gogpt.exe
+darwin-*
+linux-*
+windows-*
