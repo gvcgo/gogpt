@@ -61,4 +61,4 @@ Easies to use than [j178](https://github.com/j178/chatgpt).
 
 ![quicksort1](https://github.com/moqsien/gogpt/blob/main/docs/gpgpt_quicksort_1.png)
 
-![quicksort2](https://github.com/moqsien/gogpt/blob/main/docs/gpgpt_quicksort_2.png)
+![quicksort2](https://github.com/moqsien/gogpt/blob/main/docs/gogpt_quicksort_2.png)
