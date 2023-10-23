@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"io"
 	"strings"
 	"unicode"
@@ -31,6 +32,7 @@ type ConversationModel struct {
 	GPT          *gpt.GPT
 	Conversation *gpt.Conversation
 	Receiving    bool
+	Error        error
 }
 
 func NewConversationModel(cnf *config.Config) (cvm *ConversationModel) {
@@ -61,7 +63,6 @@ func (that *ConversationModel) Init() tea.Cmd {
 	return tea.Batch(that.Spinner.Tick, textarea.Blink)
 }
 
-// TODO: keymap & viewpord render & help info & logfile
 func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
@@ -72,7 +73,7 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		that.TextArea.SetWidth(that.WindowWidth)
 		that.Viewport.Width = msg.Width - 5
 		that.Viewport.MouseWheelEnabled = true
-		that.Viewport.Height = msg.Height - that.TextArea.Height() - lipgloss.Height(that.Spinner.View()) - lipgloss.Height(lipgloss.NewStyle().Foreground(lipgloss.Color("229")).Render("title\n"))
+		that.Viewport.Height = msg.Height - that.TextArea.Height() - lipgloss.Height(that.RenderFooter()) - lipgloss.Height(lipgloss.NewStyle().Foreground(lipgloss.Color("229")).Render("title\n"))
 	case spinner.TickMsg:
 		if that.Receiving {
 			that.Spinner, cmd = that.Spinner.Update(msg)
@@ -88,7 +89,12 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				that.Conversation.AddQuestion(messageStr)
 				msgList := that.Conversation.GetMessages()
 				that.Receiving = true
-				answerStr, err := that.GPT.SendMsg(msgList)
+				cmds = append(
+					cmds, func() tea.Msg {
+						return that.Spinner.Tick()
+					},
+				)
+				answerStr, err := that.GPT.SendMsg(msgList) // TODO: logfile
 				if err == io.EOF {
 					that.Receiving = false
 				} else {
@@ -96,6 +102,9 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						var msg AnswerContinue
 						return msg
 					})
+				}
+				if err != nil && err != io.EOF {
+					that.Error = err
 				}
 				that.Conversation.AddAnswer(answerStr, !that.Receiving)
 				that.Viewport.SetContent(that.RenderQA(*that.Conversation.Current))
@@ -142,6 +151,9 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return msg
 			})
 		}
+		if err != nil && err != io.EOF {
+			that.Error = err
+		}
 		that.Conversation.AddAnswer(answerStr, !that.Receiving)
 		if that.Conversation.Current != nil {
 			that.Viewport.SetContent(that.RenderQA(*that.Conversation.Current))
@@ -170,13 +182,8 @@ func (that *ConversationModel) EnsureTrailingNewline(s string) string {
 var (
 	senderStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("5"))
 	botStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("6"))
-	// errorStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("1"))
-	// footerStyle = lipgloss.NewStyle().
-	// 		Height(1).
-	// 		BorderTop(true).
-	// 		BorderStyle(lipgloss.NormalBorder()).
-	// 		BorderForeground(lipgloss.Color("8")).
-	// 		Faint(true)
+	errorStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FF0000"))
+	footerStyle = lipgloss.NewStyle().Height(1).Foreground(lipgloss.Color("#FFA500")).Faint(true)
 )
 
 func (that *ConversationModel) RenderQA(qa gpt.QuesAnsw) string {
@@ -207,6 +214,36 @@ func (that *ConversationModel) RenderQA(qa gpt.QuesAnsw) string {
 	return b.String()
 }
 
+func (that *ConversationModel) RenderFooter() string {
+	if that.Error != nil {
+		return footerStyle.Render(errorStyle.Render(fmt.Sprintf("error: %+v", that.Error)))
+	}
+	var columns []string
+
+	// spinner
+	if that.Receiving {
+		columns = append(columns, that.Spinner.View())
+	} else {
+		columns = append(columns, that.Spinner.Spinner.Frames[0])
+	}
+
+	// conversation indicator
+	if that.Conversation.Len() > 1 {
+		conversationIdx := fmt.Sprintf("%s %d/%d", "Q&A", that.Conversation.Cursor+1, that.Conversation.Len())
+		columns = append(columns, conversationIdx)
+	}
+
+	// switch tab
+	columns = append(columns, "Tab ←/→")
+
+	l := len(columns)
+	length := that.WindowWidth / l
+	for i := 0; i < l; i++ {
+		columns[i] = footerStyle.Render(columns[i] + strings.Repeat(" ", length-len(columns[i])))
+	}
+	return lipgloss.JoinHorizontal(lipgloss.Left, columns...)
+}
+
 func (that *ConversationModel) View() string {
 	if that.WindowWidth == 0 || that.WindowHeight == 0 {
 		return "Initializing..."
@@ -216,6 +253,6 @@ func (that *ConversationModel) View() string {
 		lipgloss.Left,
 		that.Viewport.View(),
 		that.TextArea.View(),
-		that.Spinner.View(),
+		that.RenderFooter(),
 	)
 }

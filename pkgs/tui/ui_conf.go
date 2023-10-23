@@ -61,6 +61,7 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 	}
 	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("gpt_model"), input.MWithWidth(100))
 	gptPromptList := []string{}
+	// TODO: sort
 	for _, item := range *prompt.PromptList {
 		gptPromptList = append(gptPromptList, item.Title)
 	}
