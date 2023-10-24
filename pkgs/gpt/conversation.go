@@ -188,3 +188,7 @@ func (that *Conversation) Load() {
 		}
 	}
 }
+
+func (that *Conversation) ClearCurrentAnswer() {
+	that.Current.A = ""
+}

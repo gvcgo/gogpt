@@ -103,10 +103,13 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return msg
 					})
 				}
+				that.Conversation.AddAnswer(answerStr, !that.Receiving)
 				if err != nil && err != io.EOF {
 					that.Error = err
+					// clear errored answer, continue to Q&A
+					that.Conversation.ClearCurrentAnswer()
+					that.Receiving = false
 				}
-				that.Conversation.AddAnswer(answerStr, !that.Receiving)
 				that.Viewport.SetContent(that.RenderQA(*that.Conversation.Current))
 				that.Viewport.GotoBottom()
 			}
@@ -155,6 +158,13 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			that.Error = err
 		}
 		that.Conversation.AddAnswer(answerStr, !that.Receiving)
+
+		if err != nil && err != io.EOF {
+			that.Error = err
+			// clear errored answer, continue to Q&A
+			that.Conversation.ClearCurrentAnswer()
+			that.Receiving = false
+		}
 		if that.Conversation.Current != nil {
 			that.Viewport.SetContent(that.RenderQA(*that.Conversation.Current))
 			that.Viewport.GotoBottom()
@@ -183,7 +193,7 @@ var (
 	senderStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("5"))
 	botStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("6"))
 	errorStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FF0000"))
-	footerStyle = lipgloss.NewStyle().Height(1).Foreground(lipgloss.Color("#FFA500")).Faint(true)
+	footerStyle = lipgloss.NewStyle().Height(1).Foreground(lipgloss.Color("#00FFFF")).Faint(true)
 )
 
 func (that *ConversationModel) RenderQA(qa gpt.QuesAnsw) string {

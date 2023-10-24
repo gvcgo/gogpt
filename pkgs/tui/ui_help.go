@@ -28,7 +28,7 @@ func (that *HelpModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (that *HelpModel) View() string {
-	pattern := "%-10s  %s"
+	pattern := "%-12s  %s"
 	helpList := []string{
 		fmt.Sprintf(pattern, "enter", "Submit your message to gpt."),
 		fmt.Sprintf(pattern, "↑", "Scroll up."),
@@ -37,6 +37,7 @@ func (that *HelpModel) View() string {
 		fmt.Sprintf(pattern, "ctrl+f", "Show the next QA."),
 		fmt.Sprintf(pattern, "ctrl+s", "Save conversation."),
 		fmt.Sprintf(pattern, "ctrl+l", "Load conversation."),
+		fmt.Sprintf(pattern, "ctrl+c/esc", "Exit."),
 		fmt.Sprintf(pattern, "→", "Switch to the next Tab."),
 		fmt.Sprintf(pattern, "←", "Switch to the previous Tab."),
 	}

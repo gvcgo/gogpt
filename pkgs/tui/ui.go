@@ -59,7 +59,7 @@ func (that *GPTUI) AddHelpInfo() {
 
 func (that *GPTUI) Run() {
 	if that.Program == nil {
-		that.Program = tea.NewProgram(that.GVM, tea.WithAltScreen(), tea.WithMouseCellMotion())
+		that.Program = tea.NewProgram(that.GVM, tea.WithAltScreen())
 	}
 	if _, err := that.Program.Run(); err != nil {
 		gprint.PrintError("%+v", err)

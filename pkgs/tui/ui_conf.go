@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/gogf/gf/util/gconv"
 	"github.com/moqsien/gogpt/pkgs/config"
 	"github.com/moqsien/gogpt/pkgs/gpt"
@@ -31,7 +32,7 @@ var (
 	gptModel       string = "select_model"
 	apiKey         string = "apiKey"
 	proxy          string = "proxy"
-	apiType        string = "apiType"
+	apiType        string = "select_APIType"
 	apiVersion     string = "apiVersion"
 	orgID          string = "orgID"
 	engine         string = "engine"
@@ -45,7 +46,21 @@ var (
 
 func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 	mi := input.NewInputMultiModel()
-	mi.AddOneInput(baseUrl, input.MWithPlaceholder("base_url"), input.MWithWidth(150))
+	mi.SetInputPromptFormat("%-15s")
+	placeHolderStyle := input.MWithPlaceholderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#BEBEBE")))
+	mi.AddOneInput(apiKey, input.MWithPlaceholder("ChatGPT auth token"), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(proxy, input.MWithPlaceholder("Local proxy"), input.MWithWidth(150), placeHolderStyle)
+	mi.AddOneInput(ctxLen, input.MWithPlaceholder("Conversation context length"), input.MWithWidth(100), placeHolderStyle)
+
+	// Select ChatGPT API type
+	gptApiTypeList := []string{
+		string(openai.APITypeOpenAI),
+		string(openai.APITypeAzure),
+		string(openai.APITypeAzureAD),
+	}
+	mi.AddOneOption(apiType, gptApiTypeList, input.MWithPlaceholder("ChatGPT Api Type."), input.MWithWidth(100), placeHolderStyle)
+
+	// Select ChatGPT Model
 	gptModelList := []string{
 		openai.GPT3Dot5Turbo0613,
 		openai.GPT3Dot5Turbo,
@@ -68,38 +83,33 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		openai.GPT3Babbage,
 		openai.GPT3Babbage002,
 	}
-	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("gpt_model"), input.MWithWidth(100))
+	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("ChatGPT Model."), input.MWithWidth(100), placeHolderStyle)
+
+	// Select ChatGPT Prompt
 	gptPromptList := []gutils.IComparable{}
 	for _, item := range *prompt.PromptList {
 		gptPromptList = append(gptPromptList, PromptString(item.Title))
 	}
 	gutils.QuickSort(gptPromptList, 0, len(gptPromptList)-1)
-
 	pList := []string{}
 	for _, p := range gptPromptList {
 		pStr := p.(PromptString)
 		pList = append(pList, string(pStr))
 	}
-	mi.AddOneOption(gptPrompt, pList, input.MWithPlaceholder("gpt_prompt"), input.MWithWidth(100))
-	mi.AddOneInput(gptPromptValue, input.MWithPlaceholder("enter_gpt_prompt"), input.MWithWidth(100))
+	mi.AddOneOption(gptPrompt, pList, input.MWithPlaceholder("gpt_prompt"), input.MWithWidth(100), placeHolderStyle)
+	// Enter you own ChatGPT Prompt
+	mi.AddOneInput(gptPromptValue, input.MWithPlaceholder("Enter your own prompt info instead of a selection from above."), input.MWithWidth(100), placeHolderStyle)
+	// Some configs
+	mi.AddOneInput(limit, input.MWithPlaceholder("Max empty message limit. Int."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(maxTokens, input.MWithPlaceholder("Max tokens. Int."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(temperature, input.MWithPlaceholder("Temperautue. Float."), input.MWithWidth(100), placeHolderStyle)
 
-	mi.AddOneInput(apiKey, input.MWithPlaceholder("api_key"), input.MWithWidth(100))
-	mi.AddOneInput(proxy, input.MWithPlaceholder("proxy"), input.MWithWidth(150))
-	mi.AddOneInput(apiVersion, input.MWithPlaceholder("api_version"), input.MWithWidth(100))
-
-	gptApiTypeList := []string{
-		string(openai.APITypeOpenAI),
-		string(openai.APITypeAzure),
-		string(openai.APITypeAzureAD),
-	}
-	mi.AddOneOption(apiType, gptApiTypeList, input.MWithPlaceholder("gpt_api_type"), input.MWithWidth(100))
-
-	mi.AddOneInput(orgID, input.MWithPlaceholder("org_id"), input.MWithWidth(100))
-	mi.AddOneInput(engine, input.MWithPlaceholder("engine"), input.MWithWidth(100))
-	mi.AddOneInput(limit, input.MWithPlaceholder("empty_message_limit"), input.MWithWidth(100))
-	mi.AddOneInput(maxTokens, input.MWithPlaceholder("max_tokens"), input.MWithWidth(100))
-	mi.AddOneInput(ctxLen, input.MWithPlaceholder("context_length"), input.MWithWidth(100))
-	mi.AddOneInput(temperature, input.MWithPlaceholder("temperature"), input.MWithWidth(100))
+	// Custom baseUrl
+	mi.AddOneInput(baseUrl, input.MWithPlaceholder("defaul:https://api.openai.com/v1"), input.MWithWidth(150), placeHolderStyle)
+	// For AzureGPT
+	mi.AddOneInput(apiVersion, input.MWithPlaceholder("API version."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(orgID, input.MWithPlaceholder("Organization ID."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(engine, input.MWithPlaceholder("Engine."), input.MWithWidth(100), placeHolderStyle)
 	return mi
 }
 

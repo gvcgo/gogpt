@@ -98,9 +98,9 @@ func (that *GPTViewModel) View() string {
 	var style lipgloss.Style
 	for i, t := range that.TabList {
 		if i == that.ActiveTab {
-			style = lipgloss.NewStyle().Foreground(lipgloss.Color("229"))
+			style = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFF00"))
 		} else {
-			style = lipgloss.NewStyle().Foreground(lipgloss.Color("57"))
+			style = lipgloss.NewStyle().Foreground(lipgloss.Color("#D2691E"))
 		}
 		newTabs = append(newTabs, style.Render(t.Title))
 	}

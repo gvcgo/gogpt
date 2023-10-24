@@ -9,7 +9,7 @@ require (
 	github.com/charmbracelet/glamour v0.6.0
 	github.com/charmbracelet/lipgloss v0.8.0
 	github.com/gogf/gf v1.16.9
-	github.com/moqsien/goutils v0.6.6
+	github.com/moqsien/goutils v0.7.0
 	github.com/muesli/reflow v0.3.0
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/postfinance/single v0.0.2
