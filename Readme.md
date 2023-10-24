@@ -11,7 +11,7 @@
 - 从releases下载，解压可得到可执行文件，支持Win/Mac/Linux。
 - 编译安装。
 ```bash
-go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm
+go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 ```
 ```text
 "→" 切换到下一个Tab
@@ -60,7 +60,7 @@ go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm
 - Download zip file from releases, decompress, use the binaries for Win/Mac/Linux.
 - Compile and install.
 ```bash
-go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm
+go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 ```
 ```text
 "→" Switch to next Tab
