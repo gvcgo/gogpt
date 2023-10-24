@@ -40,6 +40,8 @@ func (that *HelpModel) View() string {
 		fmt.Sprintf(pattern, "ctrl+c/esc", "Exit."),
 		fmt.Sprintf(pattern, "→", "Switch to the next Tab."),
 		fmt.Sprintf(pattern, "←", "Switch to the previous Tab."),
+		fmt.Sprintf(pattern, "tab", "Goto next input."),
+		fmt.Sprintf(pattern, "shift+tab", "Goto previous input."),
 	}
 	r := []string{}
 	for _, str := range helpList {

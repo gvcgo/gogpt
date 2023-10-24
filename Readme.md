@@ -4,8 +4,19 @@
 
 **Gogpt** 是一个非常简洁直观的基于[TUI](https://github.com/charmbracelet/bubbletea)的ChatGPT客户端.
 
+### 安装使用
+
+---------------
+
+- 从releases下载，解压可得到可执行文件，支持Win/Mac/Linux。
+- 编译安装。
+```bash
+go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm
+```
+
 ### 功能描述
 
+---------------
 比[j178](https://github.com/j178/chatgpt)更好用。
 ---------------
 - 支持本地代理配置(http或者socks5)。
@@ -36,6 +47,16 @@
 ---------------
 
 **Gogpt** is a simple client for chatgpt based on [TUI](https://github.com/charmbracelet/bubbletea).
+
+### Install
+
+---------------
+
+- Download zip file from releases, decompress, use the binaries for Win/Mac/Linux.
+- Compile and install.
+```bash
+go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm
+```
 
 ### Features
 
