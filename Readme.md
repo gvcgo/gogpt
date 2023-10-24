@@ -13,6 +13,11 @@
 ```bash
 go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm
 ```
+```text
+"→" 切换到下一个Tab
+
+"←" 切换到上一个Tab
+```
 
 ### 功能描述
 
@@ -56,6 +61,11 @@ go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm
 - Compile and install.
 ```bash
 go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm
+```
+```text
+"→" Switch to next Tab
+
+"←" Switch to previous Tab
 ```
 
 ### Features
