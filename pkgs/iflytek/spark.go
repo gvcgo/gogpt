@@ -1,4 +1,4 @@
-package ifleytek
+package iflytek
 
 import (
 	"crypto/hmac"
@@ -251,11 +251,8 @@ func (that *Spark) RecvMsg() (m string, err error) {
 	resp := NewSparkResponse(msg)
 	resp.Parse()
 	err = resp.Error
-	if resp.ChoiceStatus == 2 {
-		err = io.EOF
-	}
 	that.token += resp.TotalTokens
-	for _, r := range *resp.ResponseMsgList {
+	for _, r := range resp.ResponseMsgList {
 		if r.Role == RoleMap[openai.ChatMessageRoleAssistant] {
 			m += r.Content
 		}

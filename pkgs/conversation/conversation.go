@@ -1,10 +1,9 @@
-package gpt
+package conversation
 
 import (
 	"path/filepath"
 
 	"github.com/moqsien/gogpt/pkgs/config"
-	"github.com/moqsien/gogpt/pkgs/gpt"
 	"github.com/moqsien/goutils/pkgs/koanfer"
 	"github.com/sashabaranov/go-openai"
 )
@@ -12,9 +11,10 @@ import (
 /*
 Manage Chatgpt conversation
 */
-
 const (
 	ConversationFileName string = "gpt_conversation.json"
+	BotGPT               string = "ChatGPT"
+	BotSpark             string = "Spark"
 )
 
 type QuesAnsw struct {
@@ -23,8 +23,9 @@ type QuesAnsw struct {
 }
 
 type ConversationSaver struct {
-	QAList []QuesAnsw `koanf,json:"qa_list"`
-	Prompt string     `koanf,json:"prompt"`
+	QAList  []QuesAnsw `koanf,json:"qa_list"`
+	Prompt  string     `koanf,json:"prompt"`
+	BotType string     `koanf,json:"bot_type"`
 }
 
 type Conversation struct {
@@ -36,6 +37,7 @@ type Conversation struct {
 	CNF     *config.Config
 	Cursor  int
 	path    string
+	BotType string
 }
 
 func NewConversation(cnf *config.Config) (conv *Conversation) {
@@ -49,6 +51,22 @@ func NewConversation(cnf *config.Config) (conv *Conversation) {
 		path: filepath.Join(cnf.GetWorkDir(), ConversationFileName),
 	}
 	return
+}
+
+func (that *Conversation) SetBotType(botType string) {
+	that.BotType = botType
+	that.ClearAll()
+}
+
+func (that *Conversation) ClearAll() {
+	that.Context = []QuesAnsw{}
+	that.History = []QuesAnsw{}
+	that.Current = nil
+	that.Saver = &ConversationSaver{
+		QAList: []QuesAnsw{},
+	}
+	that.Tokens = 0
+	that.Cursor = 0
 }
 
 func (that *Conversation) AddQuestion(ques string) {
@@ -110,7 +128,7 @@ func (that *Conversation) GetMessages() []openai.ChatCompletionMessage {
 
 func (that *Conversation) GetTokens() int {
 	if that.Tokens == 0 {
-		that.Tokens = gpt.NumTokensFromMessages(that.GetMessages(), that.CNF.OpenAI.Model)
+		that.Tokens = NumTokensFromMessages(that.GetMessages(), that.CNF.OpenAI.Model)
 	}
 	return that.Tokens
 }
@@ -168,6 +186,7 @@ func (that *Conversation) Save() {
 	that.Saver.QAList = append(that.Saver.QAList, that.History...)
 	that.Saver.QAList = append(that.Saver.QAList, that.Context...)
 	that.Saver.Prompt = that.CNF.OpenAI.PromptStr
+	that.Saver.BotType = that.BotType
 	if k, err := koanfer.NewKoanfer(that.path); err == nil {
 		k.Save(that.Saver)
 	}
@@ -187,6 +206,7 @@ func (that *Conversation) Load() {
 		} else {
 			that.Context = that.Saver.QAList
 		}
+		that.BotType = that.Saver.BotType
 	}
 }
 

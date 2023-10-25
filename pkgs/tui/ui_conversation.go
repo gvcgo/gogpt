@@ -14,12 +14,22 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/moqsien/gogpt/pkgs/config"
+	cvsation "github.com/moqsien/gogpt/pkgs/conversation"
 	"github.com/moqsien/gogpt/pkgs/gpt"
+	"github.com/moqsien/gogpt/pkgs/iflytek"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/reflow/wrap"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type AnswerContinue string
+
+type Bot interface {
+	SendMsg(msgs []openai.ChatCompletionMessage) (m string, err error)
+	RecvMsg() (m string, err error)
+	Close()
+	GetTokens() int64
+}
 
 type ConversationModel struct {
 	Viewport     viewport.Model
@@ -30,7 +40,8 @@ type ConversationModel struct {
 	WindowHeight int
 	WindowWidth  int
 	GPT          *gpt.GPT
-	Conversation *gpt.Conversation
+	Spark        *iflytek.Spark
+	Conversation *cvsation.Conversation
 	Receiving    bool
 	Error        error
 }
@@ -39,8 +50,10 @@ func NewConversationModel(cnf *config.Config) (cvm *ConversationModel) {
 	cvm = &ConversationModel{
 		CNF:          cnf,
 		GPT:          gpt.NewGPT(cnf),
-		Conversation: gpt.NewConversation(cnf),
+		Spark:        iflytek.NewSpark(cnf),
+		Conversation: cvsation.NewConversation(cnf),
 	}
+	cvm.Conversation.SetBotType(cvsation.BotGPT) // ChatGPT by default
 	cvm.Spinner = spinner.New(spinner.WithSpinner(spinner.Meter))
 	cvm.TextArea = textarea.New()
 	cvm.TextArea.Cursor.SetMode(cursor.CursorBlink)
@@ -57,6 +70,37 @@ func NewConversationModel(cnf *config.Config) (cvm *ConversationModel) {
 		glamour.WithWordWrap(0),
 	)
 	return
+}
+
+func (that *ConversationModel) GetBot() Bot {
+	switch that.Conversation.BotType {
+	case cvsation.BotSpark:
+		if that.Spark == nil {
+			that.Spark = iflytek.NewSpark(that.CNF)
+		}
+		return that.Spark
+	default:
+		if that.GPT == nil {
+			that.GPT = gpt.NewGPT(that.CNF)
+		}
+		return that.GPT
+	}
+}
+
+func (that *ConversationModel) SwitchBot() {
+	if that.Conversation.BotType == cvsation.BotGPT {
+		that.Conversation.SetBotType(cvsation.BotSpark)
+		if that.GPT != nil {
+			that.GPT.Close()
+			that.GPT = nil
+		}
+	} else {
+		that.Conversation.SetBotType(cvsation.BotGPT)
+		if that.Spark != nil {
+			that.Spark.Close()
+			that.Spark = nil
+		}
+	}
 }
 
 func (that *ConversationModel) Init() tea.Cmd {
@@ -94,7 +138,8 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return that.Spinner.Tick()
 					},
 				)
-				answerStr, err := that.GPT.SendMsg(msgList)
+				answerStr, err := that.GetBot().SendMsg(msgList)
+
 				if err == io.EOF {
 					that.Receiving = false
 				} else {
@@ -136,6 +181,8 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !that.Receiving {
 				that.Conversation.Load()
 			}
+		case "ctrl+w":
+			that.SwitchBot() // switch bot
 		default:
 			if !that.TextArea.Focused() && !that.Receiving {
 				cmd = that.TextArea.Focus()
@@ -145,7 +192,7 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, cmd)
 		}
 	case AnswerContinue:
-		answerStr, err := that.GPT.RecvMsg()
+		answerStr, err := that.GetBot().RecvMsg()
 		if err == io.EOF {
 			that.Receiving = false
 		} else {
@@ -196,7 +243,7 @@ var (
 	footerStyle = lipgloss.NewStyle().Height(1).Foreground(lipgloss.Color("#00FFFF")).Faint(true)
 )
 
-func (that *ConversationModel) RenderQA(qa gpt.QuesAnsw) string {
+func (that *ConversationModel) RenderQA(qa cvsation.QuesAnsw) string {
 	var (
 		b       strings.Builder
 		content string
@@ -237,6 +284,13 @@ func (that *ConversationModel) RenderFooter() string {
 		columns = append(columns, that.Spinner.Spinner.Frames[0])
 	}
 
+	// bot type: ChatGPT/Spark
+	if that.Conversation.BotType == cvsation.BotGPT {
+		columns = append(columns, cvsation.BotGPT)
+	} else {
+		columns = append(columns, cvsation.BotSpark)
+	}
+
 	// conversation indicator
 	if that.Conversation.Len() > 1 {
 		conversationIdx := fmt.Sprintf("%s %d/%d", "Q&A", that.Conversation.Cursor+1, that.Conversation.Len())
@@ -246,7 +300,7 @@ func (that *ConversationModel) RenderFooter() string {
 	// tokens
 	msgs := that.Conversation.GetMessages()
 	if len(msgs) > 0 {
-		token := gpt.NumTokensFromMessages(msgs, that.CNF.OpenAI.Model)
+		token := cvsation.NumTokensFromMessages(msgs, that.CNF.OpenAI.Model)
 		columns = append(columns, fmt.Sprintf("Tokens %d", token))
 	}
 
@@ -272,4 +326,13 @@ func (that *ConversationModel) View() string {
 		that.TextArea.View(),
 		that.RenderFooter(),
 	)
+}
+
+func (that *ConversationModel) CloseConversation() {
+	if that.GPT != nil {
+		that.GPT.Close()
+	}
+	if that.Spark != nil {
+		that.Spark.Close()
+	}
 }

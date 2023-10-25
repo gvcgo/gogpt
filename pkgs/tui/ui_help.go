@@ -37,6 +37,7 @@ func (that *HelpModel) View() string {
 		fmt.Sprintf(pattern, "ctrl+f", "Show the next QA."),
 		fmt.Sprintf(pattern, "ctrl+s", "Save conversation."),
 		fmt.Sprintf(pattern, "ctrl+l", "Load conversation."),
+		fmt.Sprintf(pattern, "ctrl+w", "Switch bot type between ChatGPT and Spark."),
 		fmt.Sprintf(pattern, "ctrl+c/esc", "Exit."),
 		fmt.Sprintf(pattern, "→", "Switch to the next Tab."),
 		fmt.Sprintf(pattern, "←", "Switch to the previous Tab."),

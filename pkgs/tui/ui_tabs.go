@@ -63,6 +63,7 @@ func (that *GPTViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
 		case "ctrl+c", "esc":
+			that.Close()
 			return that, tea.Quit
 		case "right":
 			if that.ActiveTab < len(that.TabList)-1 {
@@ -112,4 +113,12 @@ func (that *GPTViewModel) View() string {
 
 func (that *GPTViewModel) AddTab(title string, model tea.Model) {
 	that.TabList = append(that.TabList, &Tab{Title: title, Model: model})
+}
+
+func (that *GPTViewModel) Close() {
+	for _, tab := range that.TabList {
+		if t, ok := tab.Model.(*ConversationModel); ok {
+			t.CloseConversation()
+		}
+	}
 }

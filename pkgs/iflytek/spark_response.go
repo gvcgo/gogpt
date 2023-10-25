@@ -1,8 +1,8 @@
-package ifleytek
+package iflytek
 
 import (
-	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/gogf/gf/encoding/gjson"
 )
@@ -172,20 +172,36 @@ type SparkResponse struct {
 	Error           error
 	ChoiceStatus    int
 	TotalTokens     int64
-	ResponseMsgList *[]ResponseMsg
+	ResponseMsgList []ResponseMsg
 }
 
 func NewSparkResponse(raw []byte) (sr *SparkResponse) {
-	sr = &SparkResponse{Raw: raw, ResponseMsgList: &[]ResponseMsg{}, Error: nil}
+	sr = &SparkResponse{Raw: raw, ResponseMsgList: []ResponseMsg{}, Error: nil}
 	return
 }
 
 func (that *SparkResponse) Parse() {
+	// fmt.Println(string(that.Raw))
 	j := gjson.New(that.Raw)
 	that.ErrCode = j.GetInt("header.code")
 	that.Error = SparkErrorMap[that.ErrCode]
+	if that.ErrCode != 0 {
+		return
+	}
 	that.ChoiceStatus = j.GetInt("payload.choices.status")
-	that.TotalTokens = j.GetInt64("payload.usage.text.total_tokens")
-	text := j.GetBytes("payload.choices.text")
-	json.Unmarshal(text, that.ResponseMsgList)
+	if that.ChoiceStatus == 2 {
+		that.Error = io.EOF
+		that.TotalTokens = j.GetInt64("payload.usage.text.total_tokens")
+	}
+	text := j.GetArray("payload.choices.text")
+	for _, m := range text {
+		msg := m.(map[string]interface{})
+		respMsg := ResponseMsg{}
+		respMsg.Content = msg["content"].(string)
+		respMsg.Role = msg["role"].(string)
+		respMsg.Index = int(msg["index"].(float64))
+		if respMsg.Content != "" {
+			that.ResponseMsgList = append(that.ResponseMsgList, respMsg)
+		}
+	}
 }
