@@ -14,6 +14,7 @@ const (
 	PromptUrl      string = "https://gitlab.com/moqsien/gpt_resources/-/raw/main/prompt.json"
 )
 
+// ChatGPT
 type OpenAIConf struct {
 	BaseUrl            string         `koanf,json:"base_url"`
 	ApiKey             string         `koanf,json:"api_key"`
@@ -31,8 +32,37 @@ type OpenAIConf struct {
 	PromptStr          string         `koanf,json:"prompt"`
 }
 
+type SparkAPIVersion string
+
+const (
+	SparkAPIV1Dot1 string          = "wss://spark-api.xf-yun.com/v1.1/chat"
+	SparkAPIV2Dot1 string          = "wss://spark-api.xf-yun.com/v2.1/chat"
+	SparkAPIV3Dot1 string          = "wss://spark-api.xf-yun.com/v3.1/chat"
+	SparkDomainV1  string          = "general"
+	SparkDomainV2  string          = "general2"
+	SparkDomainV3  string          = "general3"
+	SparkAPIV1     SparkAPIVersion = "v1.1"
+	SparkAPIV2     SparkAPIVersion = "v2.1"
+	SparkAPIV3     SparkAPIVersion = "v3.1"
+)
+
+// IFlyTek Spark
+type IflySparkConf struct {
+	APIVersion  SparkAPIVersion `koanf,json:"spark_api_version"`
+	APPID       string          `koanf,json:"spark_app_id"`
+	UID         string          `koanf,json:"spark_user_id"`
+	APPKey      string          `koanf,json:"spark_app_key"`
+	APPSecrete  string          `koanf,json:"spark_app_secrete"`
+	MaxTokens   int64           `koanf,json:"spark_max_tokens"`
+	Temperature float64         `koanf,json:"spark_temperature"`
+	TopK        int64           `koanf,json:"spark_topk"`
+	ChatID      string          `koanf,json:"spark_chat_id"`
+	Timeout     int             `koanf,json:"spark_timeout"` // seconds
+}
+
 type Config struct {
-	OpenAI  *OpenAIConf `koanf,json:"openai"`
+	OpenAI  *OpenAIConf    `koanf,json:"openai"`
+	Spark   *IflySparkConf `koanf,json:"spark"`
 	path    string
 	workDir string
 	koanfer *koanfer.JsonKoanfer
@@ -44,6 +74,7 @@ func NewConf(workDir string) (cfg *Config) {
 	}
 	cfg = &Config{
 		OpenAI:  &OpenAIConf{},
+		Spark:   &IflySparkConf{},
 		workDir: workDir,
 	}
 	cfg.path = filepath.Join(workDir, ConfigFileName)

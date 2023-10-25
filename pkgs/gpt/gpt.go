@@ -166,3 +166,7 @@ func (that *GPT) Close() {
 	}
 	that.Stream = nil
 }
+
+func (that *GPT) GetTokens() int64 {
+	return 0
+}
