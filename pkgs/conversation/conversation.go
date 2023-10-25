@@ -127,9 +127,15 @@ func (that *Conversation) GetMessages() []openai.ChatCompletionMessage {
 }
 
 func (that *Conversation) GetTokens() int {
-	if that.Tokens == 0 {
-		that.Tokens = NumTokensFromMessages(that.GetMessages(), that.CNF.OpenAI.Model)
+	if that.BotType == BotGPT {
+		return NumTokensFromMessages(that.GetMessages(), that.CNF.OpenAI.Model)
 	}
+	// tokens for Spark
+	return that.Tokens
+}
+
+func (that *Conversation) AddTokens(tokens int) int {
+	that.Tokens += tokens
 	return that.Tokens
 }
 

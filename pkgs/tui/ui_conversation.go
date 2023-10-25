@@ -138,7 +138,8 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return that.Spinner.Tick()
 					},
 				)
-				answerStr, err := that.GetBot().SendMsg(msgList)
+				bot := that.GetBot()
+				answerStr, err := bot.SendMsg(msgList)
 
 				if err == io.EOF {
 					that.Receiving = false
@@ -148,6 +149,8 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return msg
 					})
 				}
+				that.Conversation.AddTokens(int(bot.GetTokens()))
+
 				that.Conversation.AddAnswer(answerStr, !that.Receiving)
 				if err != nil && err != io.EOF {
 					that.Error = err
@@ -192,7 +195,8 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, cmd)
 		}
 	case AnswerContinue:
-		answerStr, err := that.GetBot().RecvMsg()
+		bot := that.GetBot()
+		answerStr, err := bot.RecvMsg()
 		if err == io.EOF {
 			that.Receiving = false
 		} else {
@@ -204,6 +208,7 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if err != nil && err != io.EOF {
 			that.Error = err
 		}
+		that.Conversation.AddTokens(int(bot.GetTokens()))
 		that.Conversation.AddAnswer(answerStr, !that.Receiving)
 
 		if err != nil && err != io.EOF {
@@ -298,11 +303,8 @@ func (that *ConversationModel) RenderFooter() string {
 	}
 
 	// tokens
-	msgs := that.Conversation.GetMessages()
-	if len(msgs) > 0 {
-		token := cvsation.NumTokensFromMessages(msgs, that.CNF.OpenAI.Model)
-		columns = append(columns, fmt.Sprintf("Tokens %d", token))
-	}
+	token := that.Conversation.GetTokens()
+	columns = append(columns, fmt.Sprintf("Tokens %d", token))
 
 	// switch tab
 	columns = append(columns, "Tab ←/→")
