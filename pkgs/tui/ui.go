@@ -62,6 +62,6 @@ func (that *GPTUI) Run() {
 		that.Program = tea.NewProgram(that.GVM, tea.WithAltScreen())
 	}
 	if _, err := that.Program.Run(); err != nil {
-		gprint.PrintError("%+v", err)
+		gprint.PrintError("Run bubbletea failed: %+v", err)
 	}
 }

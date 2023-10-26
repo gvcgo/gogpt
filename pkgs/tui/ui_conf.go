@@ -219,7 +219,7 @@ func SetConfig(cfg *config.Config, values map[string]string) {
 			cfg.Spark.APPKey = values[sparkApiKey]
 		}
 		if values[sparkApiSecrete] != "" {
-			cfg.Spark.APPSecrete = values[sparkApiKey]
+			cfg.Spark.APPSecrete = values[sparkApiSecrete]
 		}
 		if values[sparkMaxTokens] != "" {
 			cfg.Spark.MaxTokens = gconv.Int64(values[sparkMaxTokens])
