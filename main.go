@@ -48,6 +48,8 @@ func main() {
 	ui := tui.NewGPTUI(cnf)
 	ui.Run()
 
+	// p := gpt.NewGPTPrompt(cnf)
+	// p.DownloadPrompt()
 	// spark := iflytek.NewSpark(cnf)
 	// spark.SendMsg([]openai.ChatCompletionMessage{
 	// 	{Role: openai.ChatMessageRoleUser, Content: "你好"},

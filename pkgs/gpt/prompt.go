@@ -2,6 +2,7 @@ package gpt
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -48,7 +49,10 @@ func (that *GPTPrompt) DownloadPrompt() {
 	f := request.NewFetcher()
 	f.SetUrl(that.CNF.OpenAI.PromptMsgUrl)
 	f.Timeout = 10 * time.Second
-	f.GetFile(that.path, true)
+	size := f.GetFile(that.path, true)
+	if size == 0 {
+		fmt.Println("download failed")
+	}
 }
 
 func (that *GPTPrompt) PromptStr() string {
@@ -68,5 +72,6 @@ func (that *GPTPrompt) GetPromptByTile(title string) (p string) {
 			return pItem.Msg
 		}
 	}
-	return
+	that.prompt = "You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible."
+	return that.prompt
 }

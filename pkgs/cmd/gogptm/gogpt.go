@@ -2,9 +2,13 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
+	"github.com/moqsien/gogpt/pkgs/config"
+	"github.com/moqsien/gogpt/pkgs/gpt"
 	"github.com/moqsien/gogpt/pkgs/tui"
 	"github.com/moqsien/goutils/pkgs/gtea/gprint"
+	"github.com/moqsien/goutils/pkgs/gutils"
 	"github.com/postfinance/single"
 )
 
@@ -19,6 +23,12 @@ func main() {
 	}()
 
 	cnf := tui.GetDefaultConfig()
+	cnf.OpenAI.PromptMsgUrl = config.PromptUrl
+	promptPath := filepath.Join(cnf.GetWorkDir(), gpt.PromptFileName)
+	if ok, _ := gutils.PathIsExist(promptPath); !ok {
+		prompt := gpt.NewGPTPrompt(cnf)
+		prompt.DownloadPrompt()
+	}
 	ui := tui.NewGPTUI(cnf)
 	ui.Run()
 }
