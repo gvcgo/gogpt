@@ -25,6 +25,9 @@ go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 "ctrl+w" 在ChatGPT和讯飞星火之间切换。
 ```
 
+### 配置(Configuration Tab，使用左右箭头切换Tab)
+<img src="https://github.com/moqsien/gogpt/blob/main/docs/gogpt_config.png" width="50%">
+
 ### 功能描述
 
 ---------------
