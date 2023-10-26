@@ -66,7 +66,7 @@ var (
 
 func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 	mi := input.NewInputMultiModel()
-	mi.SetInputPromptFormat("%-15s")
+	mi.SetInputPromptFormat("%-20s")
 	// ChatGPT
 	placeHolderStyle := input.MWithPlaceholderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#BEBEBE")))
 	mi.AddOneInput(apiKey, input.MWithPlaceholder("ChatGPT auth token"), input.MWithWidth(100), placeHolderStyle)
