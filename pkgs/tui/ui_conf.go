@@ -166,6 +166,9 @@ func SetConfig(cfg *config.Config, values map[string]string) {
 		if values[apiKey] != "" {
 			cfg.OpenAI.ApiKey = values[apiKey]
 		}
+		if values[gptModel] != "" {
+			cfg.OpenAI.Model = values[gptModel]
+		}
 		if values[proxy] != "" {
 			cfg.OpenAI.Proxy = values[proxy]
 		}
