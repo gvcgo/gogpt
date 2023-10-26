@@ -4,7 +4,8 @@
 
 ---------------
 
-**Gogpt** 是一个非常简洁直观的基于[TUI](https://github.com/charmbracelet/bubbletea)的ChatGPT客户端.
+**Gogpt** 是一个非常简洁直观的基于[TUI](https://github.com/charmbracelet/bubbletea)的GPT客户端.
+支持ChatGPT(3.5, 4.0)和讯飞星火(1.1, 2.1, 3.1)。
 
 ### 安装使用
 
@@ -19,6 +20,8 @@ go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 "→" 切换到下一个Tab
 
 "←" 切换到上一个Tab
+
+"ctrl+w" 在ChatGPT和讯飞星火之间切换。
 ```
 
 ### 功能描述
@@ -53,7 +56,8 @@ go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 
 ---------------
 
-**Gogpt** is a simple client for chatgpt based on [TUI](https://github.com/charmbracelet/bubbletea).
+**Gogpt** is a simple client for GPT based on [TUI](https://github.com/charmbracelet/bubbletea).
+Openai chatgpt(3.5, 4.0) and Iflytek spark(1.1, 2.1, 3.1) are supported.
 
 ### Install
 
@@ -68,6 +72,8 @@ go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 "→" Switch to next Tab
 
 "←" Switch to previous Tab
+
+"ctrl+w" Switch between Chatgpt and Spark.
 ```
 
 ### Features
