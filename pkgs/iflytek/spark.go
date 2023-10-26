@@ -174,13 +174,22 @@ func (that *Spark) Connect() {
 		// Spark v1.1 一次回答之后会自动关闭会话，从而导致继续使用原有Conn读写会出错
 		// 所以这里先关闭本地Conn，然后重新连接。
 		that.Conn.CloseNow()
-		time.Sleep(time.Second)
+		time.Sleep(2 * time.Second)
 	}
 	var (
 		resp *http.Response
 		err  error
 	)
-	that.Conn, resp, err = websocket.Dial(ctx, that.AuthUrl, nil)
+
+	err = retry.Do(
+		func() error {
+			that.Conn, resp, err = websocket.Dial(ctx, that.AuthUrl, nil)
+			return err
+		},
+		retry.Attempts(3),
+		retry.LastErrorOnly(true),
+	)
+
 	if err != nil {
 		panic(that.readResp(resp) + err.Error())
 	} else if resp.StatusCode != 101 {
@@ -245,7 +254,10 @@ func (that *Spark) SendMsg(msgs []openai.ChatCompletionMessage) (m string, err e
 		ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 		defer cancel()
 		return wsjson.Write(ctx, that.Conn, reqData)
-	})
+	},
+		retry.Attempts(3),
+		retry.LastErrorOnly(true),
+	)
 	return "", err
 }
 

@@ -1,4 +1,5 @@
-[![asciicast](https://asciinema.org/a/616724.svg)](https://asciinema.org/a/616724)
+## Demo
+[![asciicast](https://asciinema.org/a/617183.svg)](https://asciinema.org/a/617183)
 
 ### Gogpt是什么？
 
