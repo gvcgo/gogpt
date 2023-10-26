@@ -48,11 +48,36 @@ func main() {
 	ui := tui.NewGPTUI(cnf)
 	ui.Run()
 
+	// spark := iflytek.NewSpark(cnf)
+	// spark.SendMsg([]openai.ChatCompletionMessage{
+	// 	{Role: openai.ChatMessageRoleUser, Content: "你好"},
+	// })
+	// for {
+	// 	msg, err := spark.RecvMsg()
+	// 	fmt.Print(msg)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		break
+	// 	}
+	// }
+	// time.Sleep(20 * time.Second)
+	// spark.SendMsg([]openai.ChatCompletionMessage{
+	// 	{Role: openai.ChatMessageRoleUser, Content: "你是谁"},
+	// })
+	// for {
+	// 	msg, err := spark.RecvMsg()
+	// 	fmt.Print(msg)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		break
+	// 	}
+	// }
+
 	// g := gpt.NewGPT(cnf)
 	// conv := gpt.NewConversation(cnf)
 	// conv.AddQuestion("write a quick sort in go, please!")
 	// ctx := conv.GetMessages()
-	// // fmt.Printf("%+v", ctx)
+	// fmt.Printf("%+v", ctx)
 	// msg, err := g.SendMsg(ctx)
 	// if err == nil {
 	// 	fmt.Print(msg)

@@ -1,6 +1,7 @@
 package iflytek
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -13,10 +14,11 @@ import (
 	"time"
 
 	"github.com/avast/retry-go"
-	"github.com/gorilla/websocket"
 	"github.com/moqsien/gogpt/pkgs/config"
 	"github.com/moqsien/goutils/pkgs/gtea/gprint"
 	"github.com/sashabaranov/go-openai"
+	"nhooyr.io/websocket"
+	"nhooyr.io/websocket/wsjson"
 )
 
 /*
@@ -75,7 +77,6 @@ type Message struct {
 
 type Spark struct {
 	CNF         *config.Config
-	Dailer      *websocket.Dialer
 	Conn        *websocket.Conn
 	AuthUrl     string
 	sparkDomain string
@@ -88,14 +89,7 @@ func NewSpark(cnf *config.Config) (s *Spark) {
 		CNF:   cnf,
 		token: 0,
 	}
-	if cnf.Spark.Timeout == 0 {
-		cnf.Spark.Timeout = 60
-	}
-	s.Dailer = &websocket.Dialer{
-		HandshakeTimeout: time.Duration(cnf.Spark.Timeout) * time.Second,
-	}
 	s.AssembleAuthUrl()
-	s.Connect()
 	return
 }
 
@@ -171,11 +165,22 @@ func (that *Spark) HmacWithShaTobase64(algorithm, data, key string) string {
 }
 
 func (that *Spark) Connect() {
+	if that.CNF.Spark.Timeout == 0 {
+		that.CNF.Spark.Timeout = 60
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(that.CNF.Spark.Timeout)*time.Second)
+	defer cancel()
+	if that.Conn != nil {
+		// Spark v1.1 一次回答之后会自动关闭会话，从而导致继续使用原有Conn读写会出错
+		// 所以这里先关闭本地Conn，然后重新连接。
+		that.Conn.CloseNow()
+		time.Sleep(time.Second)
+	}
 	var (
 		resp *http.Response
 		err  error
 	)
-	that.Conn, resp, err = that.Dailer.Dial(that.AuthUrl, nil)
+	that.Conn, resp, err = websocket.Dial(ctx, that.AuthUrl, nil)
 	if err != nil {
 		panic(that.readResp(resp) + err.Error())
 	} else if resp.StatusCode != 101 {
@@ -186,10 +191,12 @@ func (that *Spark) Connect() {
 func (that *Spark) generateRequestData(msgs []openai.ChatCompletionMessage) RequestData {
 	messages := []Message{}
 	for _, m := range msgs {
-		messages = append(messages, Message{
-			Role:    RoleMap[m.Role],
-			Content: m.Content,
-		})
+		if role := RoleMap[m.Role]; role != "" {
+			messages = append(messages, Message{
+				Role:    role,
+				Content: m.Content,
+			})
+		}
 	}
 	var (
 		temperature float64 = 0.5
@@ -229,12 +236,15 @@ func (that *Spark) generateRequestData(msgs []openai.ChatCompletionMessage) Requ
 }
 
 func (that *Spark) SendMsg(msgs []openai.ChatCompletionMessage) (m string, err error) {
+	that.Connect()
 	reqData := that.generateRequestData(msgs)
 	if that.Conn == nil {
 		return
 	}
 	err = retry.Do(func() error {
-		return that.Conn.WriteJSON(reqData)
+		ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
+		defer cancel()
+		return wsjson.Write(ctx, that.Conn, reqData)
 	})
 	return "", err
 }
@@ -243,8 +253,8 @@ func (that *Spark) RecvMsg() (m string, err error) {
 	if that.Conn == nil {
 		return "", fmt.Errorf("no conn found")
 	}
-	var msg []byte
-	_, msg, err = that.Conn.ReadMessage()
+	var msg map[string]interface{}
+	err = wsjson.Read(context.Background(), that.Conn, &msg)
 	if err != nil {
 		return "", err
 	}
@@ -262,11 +272,8 @@ func (that *Spark) RecvMsg() (m string, err error) {
 
 func (that *Spark) Close() {
 	if that.Conn != nil {
-		that.Conn.Close()
+		that.Conn.CloseNow()
 		that.Conn = nil
-	}
-	if that.Dailer != nil {
-		that.Dailer = nil
 	}
 }
 

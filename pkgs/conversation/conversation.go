@@ -70,8 +70,13 @@ func (that *Conversation) ClearAll() {
 }
 
 func (that *Conversation) AddQuestion(ques string) {
-	that.Current = &QuesAnsw{
-		Q: ques,
+	if that.Current == nil {
+		that.Current = &QuesAnsw{
+			Q: ques,
+		}
+	} else {
+		that.Current.Q = ques
+		that.Current.A = ""
 	}
 	that.Tokens = 0
 	that.ResetCursor()
@@ -159,6 +164,12 @@ func (that *Conversation) ResetCursor() {
 }
 
 func (that *Conversation) GetQAByCursor() QuesAnsw {
+	if that.Cursor < 0 || that.Cursor > that.Len()-1 {
+		that.Cursor = 0
+	}
+	if that.Len() == 0 {
+		return QuesAnsw{}
+	}
 	if that.Cursor < len(that.History) {
 		return that.History[that.Cursor]
 	}
@@ -174,17 +185,11 @@ func (that *Conversation) GetQAByCursor() QuesAnsw {
 
 func (that *Conversation) GetPrevQA() QuesAnsw {
 	that.Cursor--
-	if that.Cursor < 0 {
-		that.ResetCursor()
-	}
 	return that.GetQAByCursor()
 }
 
 func (that *Conversation) GetNextQA() QuesAnsw {
 	that.Cursor++
-	if that.Cursor > that.Len()-1 {
-		that.Cursor = 0
-	}
 	return that.GetQAByCursor()
 }
 
@@ -217,5 +222,7 @@ func (that *Conversation) Load() {
 }
 
 func (that *Conversation) ClearCurrentAnswer() {
-	that.Current.A = ""
+	if that.Current != nil {
+		that.Current.A = ""
+	}
 }

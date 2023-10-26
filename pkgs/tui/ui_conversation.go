@@ -169,12 +169,16 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+p":
 			if !that.Receiving {
 				qa := that.Conversation.GetPrevQA()
-				that.Viewport.SetContent(that.RenderQA(qa))
+				if qa.Q != "" {
+					that.Viewport.SetContent(that.RenderQA(qa))
+				}
 			}
 		case "ctrl+f":
 			if !that.Receiving {
 				qa := that.Conversation.GetNextQA()
-				that.Viewport.SetContent(that.RenderQA(qa))
+				if qa.Q != "" {
+					that.Viewport.SetContent(that.RenderQA(qa))
+				}
 			}
 		case "ctrl+s":
 			if !that.Receiving {

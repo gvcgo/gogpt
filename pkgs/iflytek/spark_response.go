@@ -167,7 +167,7 @@ type ResponseMsg struct {
 }
 
 type SparkResponse struct {
-	Raw             []byte
+	Raw             map[string]interface{}
 	ErrCode         int
 	Error           error
 	ChoiceStatus    int
@@ -175,7 +175,7 @@ type SparkResponse struct {
 	ResponseMsgList []ResponseMsg
 }
 
-func NewSparkResponse(raw []byte) (sr *SparkResponse) {
+func NewSparkResponse(raw map[string]interface{}) (sr *SparkResponse) {
 	sr = &SparkResponse{Raw: raw, ResponseMsgList: []ResponseMsg{}, Error: nil}
 	return
 }
