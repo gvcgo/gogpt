@@ -26,7 +26,7 @@ go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 ```
 
 ### 配置(Configuration Tab，使用左右箭头切换Tab)
-<img src="https://github.com/moqsien/gogpt/blob/main/docs/gogpt_config.png" width="50%">
+<img src="https://github.com/moqsien/gogpt/blob/main/docs/gogpt_config.png" width="85%">
 
 ### 功能描述
 
