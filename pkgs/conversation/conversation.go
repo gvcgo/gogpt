@@ -89,7 +89,6 @@ func (that *Conversation) AddAnswer(answ string, completed bool) {
 	that.Current.A += answ
 	if completed {
 		that.Context = append(that.Context, *that.Current)
-		that.Tokens = 0
 		if len(that.Context) > that.CNF.OpenAI.ContextLen {
 			that.History = append(that.History, that.Context[0])
 			that.Context = that.Context[1:]
@@ -139,14 +138,14 @@ func (that *Conversation) GetTokens() int {
 	return that.Tokens
 }
 
-func (that *Conversation) AddTokens(tokens int) int {
-	that.Tokens += tokens
+func (that *Conversation) AddTokens(tokens int64) int {
+	that.Tokens += int(tokens)
 	return that.Tokens
 }
 
 func (that *Conversation) ClearContext() {
 	that.History = append(that.History, that.Context...)
-	that.Context = nil
+	that.Context = []QuesAnsw{}
 	that.Tokens = 0
 	that.ResetCursor()
 }

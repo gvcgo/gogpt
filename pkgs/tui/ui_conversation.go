@@ -149,7 +149,7 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return msg
 					})
 				}
-				that.Conversation.AddTokens(int(bot.GetTokens()))
+				that.Conversation.AddTokens(bot.GetTokens())
 
 				that.Conversation.AddAnswer(answerStr, !that.Receiving)
 				if err != nil && err != io.EOF {
@@ -188,6 +188,11 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !that.Receiving {
 				that.Conversation.Load()
 			}
+		case "ctrl+d":
+			// clear conversation context
+			if !that.Receiving {
+				that.Conversation.ClearContext()
+			}
 		case "ctrl+w":
 			that.SwitchBot() // switch bot
 		default:
@@ -212,7 +217,7 @@ func (that *ConversationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if err != nil && err != io.EOF {
 			that.Error = err
 		}
-		that.Conversation.AddTokens(int(bot.GetTokens()))
+		that.Conversation.AddTokens(bot.GetTokens())
 		that.Conversation.AddAnswer(answerStr, !that.Receiving)
 
 		if err != nil && err != io.EOF {
