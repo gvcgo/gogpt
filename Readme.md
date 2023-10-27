@@ -17,6 +17,8 @@
 ```bash
 go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 ```
+- 你也可以安装(下载或者自行编译)[gvc](https://github.com/moqsien/gvc), gvc是一个超级强大的本地开发环境管理工具，已经集成了gogpt。
+
 ```text
 "→" 切换到下一个Tab
 
@@ -76,6 +78,7 @@ Openai chatgpt(3.5, 4.0) and Iflytek spark(1.1, 2.1, 3.1) are supported.
 ```bash
 go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 ```
+- You can also download binaries or complie from source code from [gvc](https://github.com/moqsien/gvc). GVC has [gogpt](https://github.com/moqsien/gvc#subcommand-gpt) integrated.
 ```text
 "→" Switch to next Tab
 
