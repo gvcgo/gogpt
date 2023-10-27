@@ -190,10 +190,10 @@ func (that *Spark) Connect() {
 		retry.LastErrorOnly(true),
 	)
 
-	if err != nil {
-		panic(that.readResp(resp) + err.Error())
-	} else if resp.StatusCode != 101 {
-		panic(that.readResp(resp) + err.Error())
+	if err != nil || resp == nil || resp.StatusCode != 101 {
+		fmt.Println(that.readResp(resp))
+		fmt.Printf("%+v", err)
+		os.Exit(1)
 	}
 }
 
