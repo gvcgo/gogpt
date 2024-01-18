@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gogf/gf/encoding/gjson"
+	"github.com/gogf/gf/v2/encoding/gjson"
 )
 
 /*
@@ -183,17 +183,17 @@ func NewSparkResponse(raw map[string]interface{}) (sr *SparkResponse) {
 func (that *SparkResponse) Parse() {
 	// fmt.Println(string(that.Raw))
 	j := gjson.New(that.Raw)
-	that.ErrCode = j.GetInt("header.code")
+	that.ErrCode = j.Get("header.code").Int()
 	that.Error = SparkErrorMap[that.ErrCode]
 	if that.ErrCode != 0 {
 		return
 	}
-	that.ChoiceStatus = j.GetInt("payload.choices.status")
+	that.ChoiceStatus = j.Get("payload.choices.status").Int()
 	if that.ChoiceStatus == 2 {
 		that.Error = io.EOF
-		that.TotalTokens = j.GetInt64("payload.usage.text.total_tokens")
+		that.TotalTokens = j.Get("payload.usage.text.total_tokens").Int64()
 	}
-	text := j.GetArray("payload.choices.text")
+	text := j.Get("payload.choices.text").Array()
 	for _, m := range text {
 		msg := m.(map[string]interface{})
 		respMsg := ResponseMsg{}

@@ -7,7 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/gogf/gf/util/gconv"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/moqsien/gogpt/pkgs/config"
 	"github.com/moqsien/gogpt/pkgs/gpt"
 	"github.com/moqsien/goutils/pkgs/gtea/gprint"
@@ -91,6 +91,8 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		openai.GPT432K,
 		openai.GPT40613,
 		openai.GPT40314,
+		openai.GPT4TurboPreview,
+		openai.GPT4VisionPreview,
 		openai.GPT3Dot5Turbo0301,
 		openai.GPT3Dot5Turbo16K,
 		openai.GPT3Dot5Turbo16K0613,
