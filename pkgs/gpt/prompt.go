@@ -75,3 +75,12 @@ func (that *GPTPrompt) GetPromptByTile(title string) (p string) {
 	that.prompt = "You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible."
 	return that.prompt
 }
+
+func (that *GPTPrompt) GetTitleByPrompt(prompt string) (t string) {
+	for _, pItem := range *that.PromptList {
+		if pItem.Msg == prompt {
+			return pItem.Title
+		}
+	}
+	return
+}

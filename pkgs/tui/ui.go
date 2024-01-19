@@ -42,7 +42,7 @@ func (that *GPTUI) AddConversationUI() {
 }
 
 func (that *GPTUI) AddConfUI() {
-	uconf := GetGoGPTConfigModel(that.Prompt)
+	uconf := GetGoGPTConfigModel(that.Prompt, that.CNF)
 	uconf.SetSubmitCmd(func() tea.Msg {
 		vals := uconf.Values()
 		vals[gptPrompt] = that.Prompt.GetPromptByTile(vals[gptPrompt])

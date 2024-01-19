@@ -64,14 +64,35 @@ var (
 	sparkTimeout     string = "spark_timeout"
 )
 
-func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
+func GetGoGPTConfigModel(prompt *gpt.GPTPrompt, conf *config.Config) ExtraModel {
 	mi := input.NewInputMultiModel()
 	mi.SetInputPromptFormat("%-20s")
 	// ChatGPT
 	placeHolderStyle := input.MWithPlaceholderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#BEBEBE")))
-	mi.AddOneInput(apiKey, input.MWithPlaceholder("ChatGPT auth token"), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(proxy, input.MWithPlaceholder("ChatGPT local proxy"), input.MWithWidth(150), placeHolderStyle)
-	mi.AddOneInput(ctxLen, input.MWithPlaceholder("ChatGPT Conversation context length"), input.MWithWidth(100), placeHolderStyle)
+
+	mi.AddOneInput(
+		apiKey,
+		input.MWithPlaceholder("ChatGPT auth token"),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.OpenAI.ApiKey),
+		placeHolderStyle,
+	)
+
+	mi.AddOneInput(
+		proxy,
+		input.MWithPlaceholder("ChatGPT local proxy"),
+		input.MWithWidth(150),
+		input.MWithDefaultValue(conf.OpenAI.Proxy),
+		placeHolderStyle,
+	)
+
+	mi.AddOneInput(
+		ctxLen,
+		input.MWithPlaceholder("ChatGPT Conversation context length"),
+		input.MWithDefaultValue(gconv.String(conf.OpenAI.ContextLen)),
+		input.MWithWidth(100),
+		placeHolderStyle,
+	)
 
 	// Select ChatGPT API type
 	gptApiTypeList := []string{
@@ -79,7 +100,14 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		string(openai.APITypeAzure),
 		string(openai.APITypeAzureAD),
 	}
-	mi.AddOneOption(apiType, gptApiTypeList, input.MWithPlaceholder("ChatGPT Api Type."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneOption(
+		apiType,
+		gptApiTypeList,
+		input.MWithPlaceholder("ChatGPT Api Type."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(gconv.String(conf.OpenAI.ApiType)),
+		placeHolderStyle,
+	)
 
 	// Select ChatGPT Model
 	gptModelList := []string{
@@ -106,7 +134,14 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		openai.GPT3Babbage,
 		openai.GPT3Babbage002,
 	}
-	mi.AddOneOption(gptModel, gptModelList, input.MWithPlaceholder("ChatGPT Model."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneOption(
+		gptModel,
+		gptModelList,
+		input.MWithPlaceholder("ChatGPT Model."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.OpenAI.Model),
+		placeHolderStyle,
+	)
 
 	// Select ChatGPT Prompt
 	gptPromptList := []gutils.IComparable{}
@@ -119,20 +154,76 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		pStr := p.(PromptString)
 		pList = append(pList, string(pStr))
 	}
-	mi.AddOneOption(gptPrompt, pList, input.MWithPlaceholder("gpt_prompt"), input.MWithWidth(100), placeHolderStyle)
+
+	mi.AddOneOption(
+		gptPrompt,
+		pList,
+		input.MWithPlaceholder("gpt_prompt"),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(prompt.GetTitleByPrompt(conf.OpenAI.PromptStr)),
+		placeHolderStyle,
+	)
 	// Enter you own ChatGPT Prompt
-	mi.AddOneInput(gptPromptValue, input.MWithPlaceholder("Enter your own chatGPT prompt info instead of a selection from above."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(
+		gptPromptValue,
+		input.MWithPlaceholder("Enter your own chatGPT prompt info instead of a selection from above."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.OpenAI.PromptStr),
+		placeHolderStyle,
+	)
 	// Some configs
-	mi.AddOneInput(limit, input.MWithPlaceholder("ChatGPT max empty message limit. Int."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(maxTokens, input.MWithPlaceholder("ChatGPT max tokens. Int."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(temperature, input.MWithPlaceholder("ChatGPT temperautue. Float."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(
+		limit,
+		input.MWithPlaceholder("ChatGPT max empty message limit. Int."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(gconv.String(conf.OpenAI.EmptyMessagesLimit)),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		maxTokens,
+		input.MWithPlaceholder("ChatGPT max tokens. Int."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(gconv.String(conf.OpenAI.MaxTokens)),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		temperature,
+		input.MWithPlaceholder("ChatGPT temperautue. Float."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(gconv.String(conf.OpenAI.Temperature)),
+		placeHolderStyle,
+	)
 
 	// Custom baseUrl
-	mi.AddOneInput(baseUrl, input.MWithPlaceholder("ChatGPT baseUrl, defaul:https://api.openai.com/v1"), input.MWithWidth(150), placeHolderStyle)
+	mi.AddOneInput(
+		baseUrl,
+		input.MWithPlaceholder("ChatGPT baseUrl, defaul:https://api.openai.com/v1"),
+		input.MWithWidth(150),
+		input.MWithDefaultValue(conf.OpenAI.BaseUrl),
+		placeHolderStyle,
+	)
 	// For AzureGPT
-	mi.AddOneInput(apiVersion, input.MWithPlaceholder("ChatGPT API version."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(orgID, input.MWithPlaceholder("Organization ID."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(engine, input.MWithPlaceholder("GPT engine."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(
+		apiVersion,
+		input.MWithPlaceholder("ChatGPT API version."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.OpenAI.ApiVersion),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		orgID,
+		input.MWithPlaceholder("Organization ID."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.OpenAI.OrgID),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		engine,
+		input.MWithPlaceholder("GPT engine."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.OpenAI.Engine),
+		placeHolderStyle,
+	)
 
 	// Spark
 	sparkApiVersionList := []string{
@@ -140,17 +231,78 @@ func GetGoGPTConfigModel(prompt *gpt.GPTPrompt) ExtraModel {
 		string(config.SparkAPIV2),
 		string(config.SparkAPIV3),
 	}
-	mi.AddOneOption(sparkApiVersion, sparkApiVersionList, input.MWithPlaceholder("spark api version"), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneOption(
+		sparkApiVersion,
+		sparkApiVersionList,
+		input.MWithPlaceholder("spark api version"),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(string(conf.Spark.APIVersion)),
+		placeHolderStyle,
+	)
 
-	mi.AddOneInput(sparkAppID, input.MWithPlaceholder("spark app id."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(sparkApiKey, input.MWithPlaceholder("spark api key."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(sparkApiSecrete, input.MWithPlaceholder("spark api secrete."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(sparkMaxTokens, input.MWithPlaceholder("spark max tokens. Int."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(sparkTemperature, input.MWithPlaceholder("spark temperature. Float."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(sparkTopK, input.MWithPlaceholder("spark top_k. Int."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(sparkTimeout, input.MWithPlaceholder("spark timeout. Seconds."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(sparkUID, input.MWithPlaceholder("spark user id."), input.MWithWidth(100), placeHolderStyle)
-	mi.AddOneInput(sparkChatID, input.MWithPlaceholder("spark chat id."), input.MWithWidth(100), placeHolderStyle)
+	mi.AddOneInput(
+		sparkAppID,
+		input.MWithPlaceholder("spark app id."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.Spark.APPID),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		sparkApiKey,
+		input.MWithPlaceholder("spark api key."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.Spark.APPKey),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		sparkApiSecrete,
+		input.MWithPlaceholder("spark api secrete."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.Spark.APPSecrete),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		sparkMaxTokens,
+		input.MWithPlaceholder("spark max tokens. Int."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(gconv.String(conf.Spark.MaxTokens)),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		sparkTemperature,
+		input.MWithPlaceholder("spark temperature. Float."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(gconv.String(conf.Spark.Temperature)),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		sparkTopK,
+		input.MWithPlaceholder("spark top_k. Int."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(gconv.String(conf.Spark.TopK)),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		sparkTimeout,
+		input.MWithPlaceholder("spark timeout. Seconds."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(gconv.String(conf.Spark.Timeout)),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		sparkUID,
+		input.MWithPlaceholder("spark user id."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.Spark.UID),
+		placeHolderStyle,
+	)
+	mi.AddOneInput(
+		sparkChatID,
+		input.MWithPlaceholder("spark chat id."),
+		input.MWithWidth(100),
+		input.MWithDefaultValue(conf.Spark.ChatID),
+		placeHolderStyle,
+	)
 	return mi
 }
 
@@ -250,7 +402,7 @@ func GetDefaultConfig() (conf *config.Config) {
 	cfg := config.NewConf(workDir)
 	prompt := gpt.NewGPTPrompt(cfg)
 	if ok, _ := gutils.PathIsExist(confPath); !ok {
-		m := GetGoGPTConfigModel(prompt)
+		m := GetGoGPTConfigModel(prompt, cfg)
 		pgm := tea.NewProgram(m)
 		if _, err := pgm.Run(); err != nil {
 			gprint.PrintError("%+v", err)
