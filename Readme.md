@@ -90,7 +90,7 @@ go install github.com/moqsien/gogpt/tree/main/pkgs/cmd/gogptm@latest
 ### Features
 
 ---------------
-- Easies to use than [j178](https://github.com/j178/chatgpt).
+- Easier to use than [j178](https://github.com/j178/chatgpt).
 ---------------
 - Local proxy settings.
 - Configurations in TUI.
