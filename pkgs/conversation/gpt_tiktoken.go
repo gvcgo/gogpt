@@ -3,7 +3,7 @@ package conversation
 import (
 	"strings"
 
-	"github.com/moqsien/goutils/pkgs/gtea/gprint"
+	"github.com/gvcgo/goutils/pkgs/gtea/gprint"
 	tiktoken "github.com/pkoukk/tiktoken-go"
 	"github.com/sashabaranov/go-openai"
 )

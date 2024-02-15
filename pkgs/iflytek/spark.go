@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"github.com/avast/retry-go"
-	"github.com/moqsien/gogpt/pkgs/config"
-	"github.com/moqsien/goutils/pkgs/gtea/gprint"
+	"github.com/gvcgo/goutils/pkgs/gtea/gprint"
+	"github.com/gvcgo/gogpt/pkgs/config"
 	"github.com/sashabaranov/go-openai"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"

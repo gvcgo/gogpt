@@ -2,9 +2,9 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/moqsien/gogpt/pkgs/config"
-	"github.com/moqsien/gogpt/pkgs/gpt"
-	"github.com/moqsien/goutils/pkgs/gtea/gprint"
+	"github.com/gvcgo/goutils/pkgs/gtea/gprint"
+	"github.com/gvcgo/gogpt/pkgs/config"
+	"github.com/gvcgo/gogpt/pkgs/gpt"
 )
 
 var (

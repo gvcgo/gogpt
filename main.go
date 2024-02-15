@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/moqsien/gogpt/pkgs/tui"
+	"github.com/gvcgo/gogpt/pkgs/tui"
 )
 
 // type ItemList struct {

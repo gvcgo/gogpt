@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	retry "github.com/avast/retry-go"
-	"github.com/moqsien/gogpt/pkgs/config"
+	"github.com/gvcgo/gogpt/pkgs/config"
 	"github.com/sashabaranov/go-openai"
 	nproxy "golang.org/x/net/proxy"
 )

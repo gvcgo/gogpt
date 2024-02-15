@@ -8,11 +8,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/moqsien/gogpt/pkgs/config"
-	"github.com/moqsien/gogpt/pkgs/gpt"
-	"github.com/moqsien/goutils/pkgs/gtea/gprint"
-	"github.com/moqsien/goutils/pkgs/gtea/input"
-	"github.com/moqsien/goutils/pkgs/gutils"
+	"github.com/gvcgo/goutils/pkgs/gtea/gprint"
+	"github.com/gvcgo/goutils/pkgs/gtea/input"
+	"github.com/gvcgo/goutils/pkgs/gutils"
+	"github.com/gvcgo/gogpt/pkgs/config"
+	"github.com/gvcgo/gogpt/pkgs/gpt"
 	openai "github.com/sashabaranov/go-openai"
 )
 

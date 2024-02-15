@@ -4,11 +4,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/moqsien/gogpt/pkgs/config"
-	"github.com/moqsien/gogpt/pkgs/gpt"
-	"github.com/moqsien/gogpt/pkgs/tui"
-	"github.com/moqsien/goutils/pkgs/gtea/gprint"
-	"github.com/moqsien/goutils/pkgs/gutils"
+	"github.com/gvcgo/goutils/pkgs/gtea/gprint"
+	"github.com/gvcgo/goutils/pkgs/gutils"
+	"github.com/gvcgo/gogpt/pkgs/config"
+	"github.com/gvcgo/gogpt/pkgs/gpt"
+	"github.com/gvcgo/gogpt/pkgs/tui"
 	"github.com/postfinance/single"
 )
 

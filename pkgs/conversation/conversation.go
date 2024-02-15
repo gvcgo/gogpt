@@ -3,8 +3,8 @@ package conversation
 import (
 	"path/filepath"
 
-	"github.com/moqsien/gogpt/pkgs/config"
-	"github.com/moqsien/goutils/pkgs/koanfer"
+	"github.com/gvcgo/goutils/pkgs/koanfer"
+	"github.com/gvcgo/gogpt/pkgs/config"
 	"github.com/sashabaranov/go-openai"
 )
 
